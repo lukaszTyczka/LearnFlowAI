@@ -19,7 +19,7 @@ Platforma ma na celu rozwiązanie tych problemów poprzez automatyzację procesu
 
 ## 3. Wymagania funkcjonalne
 
-Wymagania dla MVP:
+### POC (Proof of Concept)
 
 - FR-001: Możliwość wprowadzania danych tekstowych poprzez wklejenie tekstu bezpośrednio do interfejsu.
 - FR-002: Możliwość wprowadzania danych poprzez upload plików tekstowych w formacie .md.
@@ -34,22 +34,27 @@ Wymagania dla MVP:
 - FR-011: Możliwość predefiniowania przez użytkownika nazw kategorii (grup) do nauki.
 - FR-012: Automatyczna kategoryzacja wprowadzonej treści do jednej z predefiniowanych przez użytkownika grup na podstawie analizy AI.
 - FR-013: Generowanie zestawu pytań testowych typu ABCD (pytanie + 4 odpowiedzi, jedna poprawna) na podstawie wprowadzonego materiału.
-- FR-014: Wyświetlanie wygenerowanego podsumowania, przypisanej kategorii i zestawu Q&A w prostym interfejsie użytkownika (webowym lub konsolowym).
-- FR-015: Implementacja mechanizmu oceny (np. skala 1-5 gwiazdek lub kciuki góra/dół) dla jakości wygenerowanego podsumowania.
-- FR-016: Implementacja mechanizmu oceny dla trafności przypisanej kategorii.
-- FR-017: Implementacja mechanizmu oceny dla jakości wygenerowanych pytań Q&A.
+- FR-014: Wyświetlanie wygenerowanego podsumowania, przypisanej kategorii i zestawu Q&A w prostym interfejsie użytkownika.
 - FR-018: Stworzenie prostej bazy danych do przechowywania danych.
 - FR-019: Przechowywanie oryginalnej treści notatki/kodu w bazie danych.
 - FR-020: Przechowywanie wygenerowanego podsumowania w bazie danych, powiązanego z oryginalną notatką.
 - FR-021: Przechowywanie przypisanej kategorii w bazie danych, powiązanej z oryginalną notatką.
 - FR-022: Przechowywanie wygenerowanego zestawu Q&A w bazie danych, powiązanego z oryginalną notatką.
+- FR-028: Implementacja logiki backendowej aplikacji w języku JavaScript lub TypeScript.
+- FR-029: Podstawowy mechanizm uwierzytelniania użytkownika (logowanie).
+
+### MVP (Minimum Viable Product) - Rozszerzenie
+
+Dodatkowe funkcje, które zostaną implementowane po udanym POC:
+
+- FR-015: Implementacja mechanizmu oceny (np. skala 1-5 gwiazdek lub kciuki góra/dół) dla jakości wygenerowanego podsumowania.
+- FR-016: Implementacja mechanizmu oceny dla trafności przypisanej kategorii.
+- FR-017: Implementacja mechanizmu oceny dla jakości wygenerowanych pytań Q&A.
 - FR-023: Przechowywanie ocen użytkownika (dla podsumowania, kategorii, Q&A) w bazie danych, powiązanych z odpowiednimi wynikami.
-- FR-024: Funkcja eksportu wygenerowanego zestawu Q&A do pliku w formacie CSV, kompatybilnego z importem do Notion (dokładna struktura kolumn zostanie zdefiniowana podczas implementacji).
+- FR-024: Funkcja eksportu wygenerowanego zestawu Q&A do pliku w formacie CSV, kompatybilnego z importem do Notion.
 - FR-025: Opcjonalna integracja z API Todoist.
 - FR-026: Możliwość konfiguracji klucza API Todoist w systemie.
-- FR-027: Automatyczne tworzenie zadania w Todoist z tagiem `learning` po przetworzeniu materiału (jeśli integracja jest skonfigurowana).
-- FR-028: Implementacja logiki backendowej aplikacji w języku JavaScript lub TypeScript.
-- FR-029: Podstawowy mechanizm uwierzytelniania użytkownika (nawet jeśli tylko dla jednego użytkownika w MVP).
+- FR-027: Automatyczne tworzenie zadania w Todoist z tagiem `learning` po przetworzeniu notatki.
 
 ## 4. Granice produktu
 
