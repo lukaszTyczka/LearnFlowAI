@@ -1,54 +1,64 @@
-# React + TypeScript + Vite
+# LearnFlow AI
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Project Description
 
-Currently, two official plugins are available:
+LearnFlow AI is a personal AI assistant for learning, designed especially for developers and learners. It acts as a "second brain" that helps organize and process notes and code snippets. The platform accepts text notes, Markdown files, and code snippets, and leverages AI through the OpenRouter platform (initially using the `gpt-4o-mini` model) to generate concise summaries, automatically categorize content into user-defined groups, and create multiple-choice test questions (Q&A) to reinforce learning.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Tech Stack
 
-## Expanding the ESLint configuration
+- **Frontend:**
+  - [React 19](https://reactjs.org/)
+  - [TypeScript 5](https://www.typescriptlang.org/)
+  - [Tailwind CSS 4](https://tailwindcss.com/)
+  - [Shadcn/ui](https://ui.shadcn.com/)
+- **Backend:**
+  - [Supabase](https://supabase.com/) (using PostgreSQL with built-in authentication and storage)
+- **AI Integration:**
+  - [OpenRouter](https://openrouter.ai/) for access to various AI models
+- **Additional Integrations:**
+  - Exporting Q&A sets as CSV for [Notion](https://www.notion.so/)
+  - Task creation in [Todoist](https://todoist.com/) with the `learning` tag
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Getting Started Locally
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+1. **Clone the repository:**
+   ```bash
+   git clone <repository-url>
+   cd LearnFlowAI
+   ```
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+3. **Run the development server:**
+   ```bash
+   npm run dev
+   ```
+4. **Open your browser and navigate to:** [http://localhost:3000](http://localhost:3000)
+5. **Optional:** Configure any required environment variables as needed.
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Available Scripts
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- **dev:** Runs the development server using Vite
+- **build:** Compiles TypeScript and builds the production bundle
+- **lint:** Lints the codebase using ESLint
+- **preview:** Previews the production build using Vite
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+## Project Scope
+
+The project focuses on the following key areas:
+
+- Accepting user input in the form of text notes, Markdown files, and code snippets.
+- Generating concise summaries of user-provided content using AI.
+- Automatically categorizing content based on predefined user groups.
+- Creating multiple-choice Q&A sets for self-assessment and reinforcement of learning.
+- Providing integrations for exporting Q&A sets to CSV (for Notion) and automatic task creation in Todoist.
+- Implementing a simple backend for data persistence using Supabase.
+
+## Project Status
+
+This project is currently in the MVP stage, focusing on validating core functionalities with a minimal feature set. Future development includes further integrations, UI enhancements, and scalability improvements.
+
+## License
+
+This project is licensed under the MIT License.
