@@ -1,0 +1,34 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+**Rola:** Wciel się w rolę doświadczonego Inżyniera Testów Oprogramowania (Software Test Engineer).
+
+**Cel:** Wygeneruj kompleksowy plan testów w formacie Markdown dla projektu/funkcji opisanej w poniższych dokumentach.
+
+<prd>
+[[Prd file]]
+</prd>
+
+<tech>
+[[tech file]]
+</tech>
+
+**Wymagania Dotyczące Planu Testów:**
+
+1.  **Struktura:** Zastosuj standardową strukturę planu testów (np. Wprowadzenie, Zakres Testów (In/Out), Strategia Testów, Poziomy Testów, Środowiska Testowe, Harmonogram (jeśli dotyczy), Kryteria Wejścia/Wyjścia, Ryzyka, Metryki).
+2.  **Zakres:** Jasno zdefiniuj, co podlega testom (In Scope) i co jest poza zakresem (Out of Scope), bazując na dostarczonym PRD.
+3.  **Strategia Testów:** Opisz ogólne podejście do testowania, w tym główne techniki, które zostaną zastosowane.
+4.  **Poziomy Testów:** Szczegółowo opisz plan dla następujących poziomów, odnosząc się do technologii wymienionych w specyfikacji technicznej:
+    * **Testy Jednostkowe (Unit Tests):** Jakie kluczowe komponenty/klasy/metody powinny zostać pokryte? Jakie narzędzia/frameworki (np. xUnit, NUnit dla C#) będą używane? Przykładowe obszary: walidacja logiki biznesowej, obsługa przypadków brzegowych.
+    * **Testy Integracyjne (Integration Tests):** Jakie interakcje między modułami/serwisami/API/bazą danych będą testowane? Jakie narzędzia zostaną wykorzystane? Przykładowe obszary: komunikacja między serwisami, poprawność zapytań do bazy danych, integracja z zewnętrznymi API.
+    * **Testy End-to-End (E2E Tests):** Jakie kluczowe przepływy użytkownika (user journeys) zostaną zautomatyzowane? Jakie narzędzia (np. Selenium, Playwright, Cypress) będą użyte? Opisz przykładowe scenariusze E2E wynikające z PRD.
+5.  **Testy Niefunkcjonalne (opcjonalnie, jeśli istotne):** W miarę możliwości, uwzględnij wzmiankę o planach dotyczących testów wydajnościowych, bezpieczeństwa, użyteczności, jeśli wynikają one z PRD lub specyfikacji.
+6.  **Środowiska i Dane Testowe:** Wskaż wymagane środowiska testowe i ogólne podejście do zarządzania danymi testowymi.
+7.  **Najlepsze Praktyki:** Zastosuj najlepsze praktyki testowania, takie jak:
+    * **Traceability:** Możliwość powiązania przypadków testowych z wymaganiami.
+    * **Podejście oparte na ryzyku:** Koncentracja na najbardziej krytycznych i ryzykownych obszarach.
+    * **Jasne kryteria akceptacji.**
+8.  **Format:** Całość przedstaw w czytelnym formacie Markdown.
+9.  **Język:** Plan testów powinien być w języku polskim.
