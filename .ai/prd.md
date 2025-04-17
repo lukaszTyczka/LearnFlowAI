@@ -36,7 +36,7 @@ Platforma ma na celu rozwiązanie tych problemów poprzez automatyzację procesu
 - FR-013: Generowanie zestawu pytań testowych typu ABCD (pytanie + 4 odpowiedzi, jedna poprawna) na podstawie wprowadzonego materiału.
 - FR-014: Wyświetlanie wygenerowanego podsumowania, przypisanej kategorii i zestawu Q&A w prostym interfejsie użytkownika.
 - FR-018: Stworzenie prostej bazy danych do przechowywania danych.
-- FR-019: Przechowywanie oryginalnej treści notatki/kodu w bazie danych.
+- FR-019: Przechowywanie oryginalnej treści notatki/kodu w bazie danych. Treść notatki musi mieć od 300 do 10000 znaków.
 - FR-020: Przechowywanie wygenerowanego podsumowania w bazie danych, powiązanego z oryginalną notatką.
 - FR-021: Przechowywanie przypisanej kategorii w bazie danych, powiązanej z oryginalną notatką.
 - FR-022: Przechowywanie wygenerowanego zestawu Q&A w bazie danych, powiązanego z oryginalną notatką.
