@@ -1,11 +1,4 @@
-/*
- migration file: 20240321143000_seed_categories.sql
- purpose: seed the categories table with initial category values
- notes:
- - inserts basic categories for note organization
- - checks for existing categories to prevent duplicates
- */
--- insert categories if they don't exist
+-- Seed initial categories
 insert into categories (name, description)
 values (
         'Others',
