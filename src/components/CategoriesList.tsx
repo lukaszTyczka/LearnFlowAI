@@ -38,7 +38,7 @@ const CategoriesList: React.FC = () => {
       <h1 className="text-2xl font-bold mb-4">Categories</h1>
       <ul className="space-y-2">
         {categories.map((cat) => (
-          <li key={cat.id} className="p-2 border rounded">
+          <li key={cat.id} className="p-2  rounded">
             <strong>{cat.name}</strong>: {cat.description}
           </li>
         ))}
