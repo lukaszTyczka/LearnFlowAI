@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useSupabase } from "../context/SupabaseContext";
+import categoryService from "../services/category.service";
 
 interface Category {
   id: string;
@@ -10,7 +10,6 @@ interface Category {
 }
 
 const CategoriesList: React.FC = () => {
-  const { supabase } = useSupabase();
   const [categories, setCategories] = useState<Category[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -18,17 +17,18 @@ const CategoriesList: React.FC = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       setLoading(true);
-      const { data, error } = await supabase.from("categories").select("*");
-      if (error) {
-        setError(error.message);
-      } else {
+      try {
+        const data = await categoryService.getCategories();
         setCategories(data as Category[]);
+      } catch (err: any) {
+        setError(err.message || "Error fetching categories");
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     fetchCategories();
-  }, [supabase]);
+  }, []);
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
