@@ -1,13 +1,5 @@
 import React, { useEffect, useState } from "react";
-import categoryService from "../services/category.service";
-
-interface Category {
-  id: string;
-  name: string;
-  description: string;
-  created_at: string;
-  updated_at: string;
-}
+import categoryService, { type Category } from "../services/category.service";
 
 const CategoriesList: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);

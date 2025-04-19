@@ -1,10 +1,7 @@
 import { supabaseClient } from "../db/supabase.client";
+import type { Database } from "../db/database.types";
 
-export interface Category {
-  id: string;
-  name: string;
-  // Add other fields if needed
-}
+export type Category = Database["public"]["Tables"]["categories"]["Row"];
 
 class CategoriesService {
   async getCategories(): Promise<Category[]> {
