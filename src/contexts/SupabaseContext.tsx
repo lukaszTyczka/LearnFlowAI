@@ -21,7 +21,6 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({
 };
 
 export const useSupabase = (): SupabaseContextType => {
-  console.log(SupabaseContext);
   const context = useContext(SupabaseContext);
   if (!context) {
     throw new Error("useSupabase must be used within a SupabaseProvider");
