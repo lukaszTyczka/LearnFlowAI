@@ -4,7 +4,6 @@ import viteLogo from "/vite.svg";
 import "./App.css";
 import { Button } from "./components/ui/button";
 import CategoriesList from "./components/CategoriesList";
-import { SupabaseProvider } from "./context/SupabaseContext";
 
 function App() {
   const [count, setCount] = useState(0);
