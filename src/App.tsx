@@ -10,6 +10,7 @@ import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import { HomePage } from "./components/HomePage";
 import "./App.css";
 import Dashboard from "./components/Dashboard";
+import { RegisterForm } from "./components/auth/RegisterForm";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
           {/* Public routes */}
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginForm />} />
+          <Route path="/register" element={<RegisterForm />} />
 
           {/* Protected routes */}
           <Route

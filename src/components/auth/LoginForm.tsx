@@ -153,6 +153,13 @@ export const LoginForm: React.FC = () => {
           >
             Forgot Password?
           </Button>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => (window.location.href = "/register")}
+          >
+            Don't have an account? Register
+          </Button>
         </CardFooter>
       </form>
     </Card>
