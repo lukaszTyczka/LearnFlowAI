@@ -8,6 +8,7 @@ import { AuthProvider } from "./contexts/AuthContext";
 import { LoginForm } from "./components/auth/LoginForm";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import { HomePage } from "./components/HomePage";
+import { Toaster } from "sonner";
 import "./App.css";
 import Dashboard from "./components/Dashboard";
 import { RegisterForm } from "./components/auth/RegisterForm";
@@ -16,6 +17,7 @@ function App() {
   return (
     <AuthProvider>
       <Router>
+        <Toaster richColors />
         <Routes>
           {/* Public routes */}
           <Route path="/" element={<HomePage />} />
