@@ -9,6 +9,7 @@ import { LoginForm } from "./components/auth/LoginForm";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import { HomePage } from "./components/HomePage";
 import "./App.css";
+import Dashboard from "./components/Dashboard";
 
 function App() {
   return (
@@ -24,7 +25,7 @@ function App() {
             path="/dashboard"
             element={
               <ProtectedRoute>
-                <div>Protected Dashboard Page</div>
+                <Dashboard />
               </ProtectedRoute>
             }
           />

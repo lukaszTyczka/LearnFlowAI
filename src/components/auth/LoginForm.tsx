@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -14,13 +14,19 @@ import {
 import { useSupabase } from "../../contexts/SupabaseContext";
 
 export const LoginForm: React.FC = () => {
-  const { login, isLoading, error } = useAuth();
+  const { login, isLoading, error, user } = useAuth();
   const { supabase } = useSupabase();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [resetMode, setResetMode] = useState(false);
   const [resetSent, setResetSent] = useState(false);
   const [resetError, setResetError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      window.location.href = "/dashboard";
+    }
+  }, [user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,6 +42,7 @@ export const LoginForm: React.FC = () => {
       }
     } else {
       await login(email, password);
+      window.location.href = "/dashboard";
     }
   };
 
