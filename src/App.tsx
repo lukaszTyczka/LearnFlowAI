@@ -21,9 +21,7 @@ function App() {
       </div>
       <Button>Click me</Button>
       <h1>Vite + React</h1>
-      <SupabaseProvider>
-        <CategoriesList />
-      </SupabaseProvider>
+      <CategoriesList />
       <div className="card">
         <button onClick={() => setCount((count) => count + 1)}>
           count is {count}
