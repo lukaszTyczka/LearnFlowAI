@@ -24,11 +24,15 @@ class NotesService {
     return data as Note;
   }
 
-  async getNotesByCategory(categoryId: string): Promise<Note[]> {
+  async getNotesByCategory(
+    categoryId: string,
+    userId: string
+  ): Promise<Note[]> {
     const { data, error } = await supabaseClient
       .from("notes")
       .select("*")
       .eq("category_id", categoryId)
+      .eq("user_id", userId)
       .order("created_at", { ascending: false });
 
     if (error) {

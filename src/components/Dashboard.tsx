@@ -15,13 +15,23 @@ const Dashboard: React.FC = () => {
   const [noteContent, setNoteContent] = useState("");
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [notes, setNotes] = useState<Note[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoadingNotes, setIsLoadingNotes] = useState(false);
 
   useEffect(() => {
     loadCategories();
   }, []);
+
+  useEffect(() => {
+    if (selectedCategory && user) {
+      loadNotes();
+    } else {
+      setNotes([]);
+    }
+  }, [selectedCategory, user]);
 
   const loadCategories = async () => {
     try {
@@ -34,6 +44,24 @@ const Dashboard: React.FC = () => {
       console.error("Error loading categories:", err);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const loadNotes = async () => {
+    if (!selectedCategory || !user) return;
+
+    try {
+      setIsLoadingNotes(true);
+      const fetchedNotes = await notesService.getNotesByCategory(
+        selectedCategory,
+        user.id
+      );
+      setNotes(fetchedNotes);
+    } catch (err) {
+      console.error("Error loading notes:", err);
+      toast.error("Failed to load notes");
+    } finally {
+      setIsLoadingNotes(false);
     }
   };
 
@@ -73,10 +101,9 @@ const Dashboard: React.FC = () => {
 
       toast.success("Note saved successfully");
 
-      // Clear the form
+      // Clear the form and refresh notes
       setNoteContent("");
-
-      // TODO: Refresh notes list when implemented
+      loadNotes();
     } catch (err) {
       console.error("Error saving note:", err);
       toast.error("Failed to save note. Please try again.");
@@ -204,7 +231,37 @@ const Dashboard: React.FC = () => {
                         }`
                       : "All Notes"}
                   </h2>
-                  {/* TODO: Implement notes list */}
+                  {isLoadingNotes ? (
+                    <div className="flex justify-center py-8">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
+                    </div>
+                  ) : notes.length > 0 ? (
+                    <div className="grid gap-4">
+                      {notes.map((note) => (
+                        <Card
+                          key={note.id}
+                          className="p-4 cursor-pointer hover:bg-accent/50 transition-colors"
+                          onClick={() => setSelectedNote(note)}
+                        >
+                          <p className="text-sm text-muted-foreground">
+                            {new Date(note.created_at).toLocaleDateString()}
+                          </p>
+                          <p className="mt-2 line-clamp-3">{note.content}</p>
+                          {note.summary && (
+                            <p className="mt-2 text-sm text-muted-foreground line-clamp-2">
+                              {note.summary}
+                            </p>
+                          )}
+                        </Card>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-muted-foreground">
+                      {selectedCategory
+                        ? "No notes in this category yet. Create your first note above!"
+                        : "Select a category to view notes"}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
