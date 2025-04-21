@@ -1,0 +1,81 @@
+# Supabase Astro Initialization
+
+This document provides a reproducible guide to create the necessary file structure for integrating Supabase with your Astro project.
+
+## Prerequisites
+
+- Your project should use Astro, React (version 19), TypeScript (version 5), and Tailwind CSS (version 4).
+- Ensure you have installed the `@supabase/supabase-js` package.
+- Ensure that `/supabase/config.toml` exists.
+- Ensure that `/src/db/database.types.ts` exists and contains the correct type definitions for your database.
+
+IMPORTANT: Check prerequisites before performing actions below. If they're not met, stop and ask for assistance.
+
+## File Structure and Setup
+
+### 1. Supabase Client Initialization
+
+Create the file `/src/db/supabase.client.ts` with the following content:
+
+```ts
+import { createClient } from '@supabase/supabase-js';
+import type { Database } from './database.types.ts';
+
+const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL || '';
+const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_KEY || '';
+
+export const supabaseClient = createClient<Database>(supabaseUrl, supabaseAnonKey);
+```
+
+This file initializes the Supabase client using Astro's environment variables. In an Astro project, use `PUBLIC_` prefix for client-side environment variables.
+
+### 2. Context Provider Setup 
+For better integration with React components in Astro, you may want to create a context to provide the Supabase client throughout your application. Create the file `/src/context/SupabaseContext.tsx` with the following content:
+
+```tsx
+import React, { createContext, useContext } from 'react';
+import { supabaseClient } from '../db/supabase.client';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import type { Database } from '../db/database.types';
+
+interface SupabaseContextType {
+  supabase: SupabaseClient<Database>;
+}
+
+const SupabaseContext = createContext<SupabaseContextType | undefined>(undefined);
+
+export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  return (
+    <SupabaseContext.Provider value={{ supabase: supabaseClient }}>
+      {children}
+    </SupabaseContext.Provider>
+  );
+};
+
+export const useSupabase = (): SupabaseContextType => {
+  const context = useContext(SupabaseContext);
+  if (!context) {
+    throw new Error('useSupabase must be used within a SupabaseProvider');
+  }
+  return context;
+};
+```
+
+This context provider makes your Supabase client accessible throughout your React component tree within Astro.
+
+### 3. TypeScript Environment Definitions
+
+Create the file `src/env.d.ts` (or modify your existing definitions) with the following content:
+
+```ts
+/// <reference types="astro/client" />
+
+declare namespace NodeJS {
+  interface ProcessEnv {
+    PUBLIC_SUPABASE_URL: string;
+    PUBLIC_SUPABASE_KEY: string;
+  }
+}
+```
+
+This file provides TypeScript with environment variable types required for your Astro project. 
