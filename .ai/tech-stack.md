@@ -4,10 +4,11 @@ This document outlines the technology stack for the LearnFlowAI project, combini
 
 ## Frontend
 
-- **Framework**: React 19 – used for building the user interface and facilitating future mobile application development.
-- **Language**: TypeScript 5 – ensures strong static type checking, leading to robust code and enhanced IDE support.
-- **Styling**: Tailwind CSS 4 – a utility-first CSS framework that allows for efficient and customizable styling.
-- **UI Components**: Shadcn/ui – provides a library of accessible, pre-built React components for rapid UI development.
+- **Framework**: Astro 5 – A modern web framework focused on performance and content delivery. Used for building the overall site structure, pages, and layouts.
+- **UI Components (Interactive)**: React 19 – Used within Astro islands for building dynamic and interactive user interface components. Facilitates potential future mobile application development.
+- **Language**: TypeScript 5 – Ensures strong static type checking across both Astro and React components, leading to robust code and enhanced IDE support.
+- **Styling**: Tailwind CSS 4 – A utility-first CSS framework that allows for efficient and customizable styling within Astro and React.
+- **UI Components (Base)**: Shadcn/ui – Provides a library of accessible, pre-built React components, integrated within Astro islands for rapid UI development.
 
 ## Backend
 
