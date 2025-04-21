@@ -14,15 +14,18 @@
 
 ## 3. Proces Logowania
 
-- Formularz logowania w React umożliwi wprowadzenie emaila i hasła.
-- Klient `supabase-js` wyśle dane logowania do Supabase, gdzie nastąpi weryfikacja.
-- Błędy logowania (np. niepoprawne hasło, brak konta) będą obsługiwane i komunikowane użytkownikowi.
+- Formularz logowania w komponencie React umożliwi wprowadzenie emaila i hasła.
+- Dane logowania zostaną wysłane do dedykowanego endpointu API w Astro backend.
+- Astro backend, używając serwerowego klienta `supabase-js`, przekaże dane do Supabase Auth w celu weryfikacji.
+- Po pomyślnym zalogowaniu, Astro utworzy sesję po stronie serwera, prawdopodobnie ustawiając bezpieczne ciasteczko HTTPOnly w przeglądarce użytkownika.
+- Błędy logowania (np. niepoprawne hasło, brak konta) będą obsługiwane przez Astro i komunikowane z powrotem do frontendu React.
 
 ## 4. Zarządzanie Sesją
 
-- Supabase Auth zarządza sesjami przy użyciu JWT.
-- Tokeny są automatycznie odświeżane i przechowywane w local/session storage przeglądarki.
-- Użycie mechanizmu w `supabase-js` pozwoli na odtwarzanie stanu sesji przy ponownym wejściu na stronę.
+- Sesje użytkownika będą zarządzane przez Astro backend, wykorzystując mechanizmy takie jak bezpieczne ciasteczka (HTTPOnly, Secure, SameSite).
+- Astro middleware będzie przechwytywać przychodzące żądania, weryfikować istnienie i ważność ciasteczka sesji.
+- W razie potrzeby (np. wygaśnięcie tokenu Supabase powiązanego z sesją serwera), Astro backend będzie odpowiedzialny za komunikację z Supabase Auth w celu odświeżenia tokenu i utrzymania ciągłości sesji użytkownika, bez bezpośredniej interakcji frontendu z tokenami Supabase.
+- Frontend React będzie polegał na istnieniu sesji zarządzanej przez Astro do określania stanu zalogowania użytkownika. Informacje o stanie sesji mogą być przekazywane do frontendu np. poprzez dedykowany endpoint lub podczas renderowania strony przez Astro.
 
 ## 5. Ochrona Hasła
 
@@ -49,37 +52,39 @@ USING (user_id = auth.uid());
 
 ## 7. Integracja Frontend (React + TypeScript)
 
-- Użyję klienta `supabase-js` do komunikacji z backendem.
-- Implementacja zarządzania stanem uwierzytelnienia przy użyciu React Context API.
-- Utworzę hooki do obsługi logowania, rejestracji, wylogowywania oraz utrzymywania sesji.
-- Za pomocą komponentów typu "PrivateRoute" lub HOC zabezpieczę trasy dostępne tylko dla zalogowanych użytkowników.
+- Komponenty React będą komunikować się z endpointami API udostępnianymi przez Astro backend w celu realizacji operacji uwierzytelniania (logowanie, rejestracja, wylogowanie) oraz dostępu do chronionych zasobów.
+- Frontend nie będzie bezpośrednio zarządzał tokenami JWT Supabase ani używał klienta `supabase-js` do operacji uwierzytelniania. Klient `supabase-js` może być potencjalnie używany na frontendzie do subskrypcji zmian w czasie rzeczywistym, jeśli będzie to wymagane i odpowiednio skonfigurowane z sesją zarządzaną przez Astro.
+- Implementacja zarządzania stanem uwierzytelnienia w React (np. przy użyciu React Context API) będzie opierać się na informacjach o sesji otrzymanych z Astro backend.
+- Ochrona tras w React (komponenty typu "PrivateRoute") będzie bazować na stanie zalogowania użytkownika zarządzanym centralnie i odzwierciedlającym sesję serwerową Astro.
 
-## 8. Integracja Backend (Supabase)
+## 8. Integracja Backend (Astro + Supabase)
 
-- Supabase zabezpiecza dostęp do danych za pomocą RLS.
-- Funkcje (stored procedures) i dodatkowa logika biznesowa mogą być wdrożone dla bardziej złożonych operacji.
-- Integracja polityk RLS automatycznie ograniczy widoczność danych do rekordu odpowiadającego aktualnemu `auth.uid()`.
+- Astro będzie pełniło rolę backendu/middleware, obsługując logikę biznesową i komunikację z Supabase.
+- Astro użyje serwerowego klienta `supabase-js` do interakcji z Supabase Auth (rejestracja, logowanie, weryfikacja) oraz Supabase Database (operacje CRUD na danych).
+- Astro middleware będzie kluczowym elementem do ochrony endpointów API oraz stron, sprawdzając stan sesji użytkownika przed zezwoleniem na dostęp.
+- Polityki Row Level Security (RLS) w Supabase pozostają fundamentem ochrony danych na poziomie bazy danych, zapewniając, że nawet backend Astro (działający z uprawnieniami użytkownika pobranymi z sesji) ma dostęp tylko do odpowiednich danych.
 
 ## 9. Bezpieczeństwo
 
-- Walidacja danych wejściowych na poziomie frontendu i backendu.
-- Ochrona przed atakami XSS i CSRF:
-  - React pomaga minimalizować ryzyko XSS przez automatyczną sanitizację, gdy renderuje dane.
-  - Stosowanie tokenów CSRF oraz odpowiednich nagłówków bezpieczeństwa.
-- Użycie HTTPS dla zabezpieczenia transmisji danych.
-- Dbanie o odpowiednie nagłówki bezpieczeństwa (Content Security Policy, HSTS, itp.).
+- Walidacja danych wejściowych na poziomie frontendu (React) i backendu (Astro).
+- Ochrona przed atakami XSS: React i Astro pomagają minimalizować ryzyko. Należy dbać o odpowiednią sanitizację danych zwracanych przez API Astro.
+- Ochrona przed atakami CSRF: Użycie ciasteczek HTTPOnly zarządzanych przez Astro backend znacząco podnosi poziom ochrony przed atakami CSRF. Rozważenie dodatkowych mechanizmów (np. SameSite cookies, tokeny anty-CSRF dla specyficznych operacji) może być wskazane.
+- Użycie HTTPS dla zabezpieczenia transmisji danych między przeglądarką a Astro oraz między Astro a Supabase.
+- Dbanie o odpowiednie nagłówki bezpieczeństwa ustawiane przez Astro (Content Security Policy, HSTS, itp.).
 
 ## 10. Kroki Implementacji (MVP)
 
-1. Konfiguracja projektu Supabase, w tym włączenie Supabase Auth i RLS.
-2. Utworzenie predefiniowanego użytkownika dla MVP ("klient zero").
-3. Implementacja formularza logowania w React z użyciem `supabase-js`.
-4. Dodanie mechanizmu zarządzania stanem uwierzytelnienia (React Context API lub podobne).
-5. Wdrożenie podstawowych polityk RLS dla tabel: `notes`, `summaries`, `qna_sets`, `user_feedback`, `user_categories`.
-6. Testy przepływu logowania, sesji oraz ograniczonego dostępu do danych.
-7. Wdrożenie mechanizmu resetowania hasła.
-8. Weryfikacja bezpieczeństwa aplikacji poprzez testy oraz przegląd konfiguracji.
+1. Konfiguracja projektu Supabase (Auth, RLS, baza danych).
+2. Konfiguracja projektu Astro, w tym ustawienie integracji z React i TypeScript.
+3. Implementacja endpointów API w Astro dla rejestracji, logowania i wylogowania, wykorzystujących serwerowy `supabase-js`.
+4. Implementacja Astro middleware do zarządzania sesją (tworzenie/weryfikacja ciasteczek) i ochrony tras/endpointów.
+5. Implementacja formularzy i logiki w React do komunikacji z API Astro.
+6. Dodanie mechanizmu zarządzania stanem uwierzytelnienia w React, bazującego na sesji Astro.
+7. Wdrożenie podstawowych polityk RLS w Supabase.
+8. Testy kompleksowe przepływu uwierzytelniania (rejestracja, logowanie, sesja, ochrona tras, wylogowanie) oraz dostępu do danych.
+9. Wdrożenie mechanizmu resetowania hasła (poprzez przepływ Astro -> Supabase).
+10. Weryfikacja bezpieczeństwa (nagłówki, ciasteczka, RLS).
 
 ## Podsumowanie
 
-Plan implementacji opiera się na pełnym wykorzystaniu Supabase Auth, RLS oraz klienta `supabase-js` do zapewnienia bezpiecznego środowiska operacyjnego. System zostanie zaprojektowany z myślą o przyszłych możliwościach rozbudowy, zachowując jednocześnie priorytet bezpieczeństwa oraz prostotę wdrożenia w fazie MVP.
+Zaktualizowany plan implementacji wykorzystuje Astro jako warstwę pośredniczącą (backend/middleware), co centralizuje logikę uwierzytelniania i zarządzania sesją po stronie serwera. Zwiększa to bezpieczeństwo (m.in. przez ciasteczka HTTPOnly) i oddziela frontend od bezpośredniej interakcji z tokenami Supabase. Integracja z Supabase Auth i RLS pozostaje kluczowa, ale jest obsługiwana przez backend Astro.
