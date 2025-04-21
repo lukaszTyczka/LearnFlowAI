@@ -9,7 +9,7 @@ Ten dokument opisuje punkty końcowe API do zarządzania notatkami w backendzie 
 ### 1. Utwórz Notatkę
 
 - **Ścieżka:** `POST /api/notes`
-- **Opis:** Tworzy nową notatkę dla zalogowanego użytkownika i potencjalnie uruchamia przetwarzanie AI.
+- **Opis:** Tworzy nową notatkę dla zalogowanego użytkownika.
 - **Ciało żądania (Request Body):**
   ```json
   {
@@ -22,15 +22,9 @@ Ten dokument opisuje punkty końcowe API do zarządzania notatkami w backendzie 
   1.  Zweryfikuj uwierzytelnienie użytkownika (sprawdź `Astro.locals.user`). Zwróć 401, jeśli nie jest zalogowany.
   2.  Zwaliduj ciało żądania.
   3.  Wstaw nową notatkę do tabeli `notes` używając klienta serwerowego Supabase, powiązując ją z `locals.user.id` i podanym `categoryId` (jeśli istnieje).
-  4.  **Przetwarzanie AI (Kluczowe):**
-      - **Opcja A (Synchroniczna - Prosta):** Po pomyślnym wstawieniu, natychmiast wywołaj serwis AI (np. OpenRouter przez funkcje w `src/lib/api/`) z treścią notatki.
-      - Zaktualizuj nowo utworzony rekord notatki w Supabase o wygenerowane podsumowanie, ID skategoryzowane (potwierdzając wybór AI lub aktualizując, jeśli `categoryId` nie zostało podane) oraz ID zestawu Q&A (po utworzeniu zestawu Q&A i pytań).
-      - Zwróć kompletne dane notatki (w tym wyniki AI) ze statusem 201.
-      - _Wada: Może prowadzić do długiego czasu odpowiedzi żądania._
-      - **Opcja B (Asynchroniczna - Lepsze UX):** Po pomyślnym wstawieniu, zwróć podstawową odpowiedź sukcesu (status 201/202) z nowym ID notatki. Uruchom zadanie w tle/kolejkę (lub proste wywołanie asynchroniczne _bez_ oczekiwania na jego zakończenie w handlerze) do obsługi przetwarzania AI.
-      - Frontend musiałby wtedy odpytywać punkt końcowy statusu lub używać subskrypcji czasu rzeczywistego (jeśli zaimplementowane), aby uzyskać wyniki AI, gdy będą gotowe.
-      - _Ten plan zakłada Opcję A dla uproszczenia, chyba że określono inaczej, ale B jest zalecane dla produkcji._
-  5.  Obsłuż potencjalne błędy bazy danych lub AI.
+  4.  **Przetwarzanie AI:** **Poza zakresem początkowej refaktoryzacji.** Funkcjonalność generowania podsumowań, kategoryzacji AI i Q&A zostanie dodana w późniejszym etapie. Ten endpoint na razie _tylko_ zapisuje notatkę w bazie danych.
+  5.  Obsłuż potencjalne błędy bazy danych.
+  6.  Zwróć podstawowe dane utworzonej notatki (np. ID) ze statusem 201.
 - **Uwierzytelnianie:** Wymaga aktywnej sesji.
 
 ### 2. Pobierz Wszystkie Notatki (dla Użytkownika)
