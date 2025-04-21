@@ -1,0 +1,67 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { DashboardWrapper } from '../../components/react/DashboardWrapper';
+import type { Tables } from '../../db/database.types';
+type Category = Tables<"categories">;
+
+// Middleware ensures user is authenticated here.
+const user = Astro.locals.user;
+const supabase = Astro.locals.supabase;
+
+let categories: Category[] = [];
+let initialError: string | null = null;
+
+try {
+  if (!user) {
+    // Should technically be handled by middleware, but good practice to check
+    throw new Error("User not authenticated"); 
+  }
+  // Fetch initial categories server-side
+  // Assign the result to a variable first to help the linter/compiler
+  const categoriesResponse = await supabase
+    .from('categories') 
+    .select('*') // Use user.id directly after the check
+    .order('created_at', { ascending: false });
+
+  // Check for error after the call
+  if (categoriesResponse.error) {
+    throw categoriesResponse.error;
+  }
+  // Assign data if no error
+  categories = categoriesResponse.data || [];
+} catch (error: any) {
+  console.error("Error fetching initial categories:", error.message);
+  initialError = "Failed to load categories. Please try refreshing.";
+  // categories will remain empty
+}
+
+---
+
+<BaseLayout title="Dashboard - LearnFlowAI">
+  <div class="container mx-auto mt-10">
+    {/* Conditional rendering based on user existence */}
+    {user ? (
+      <h1 class="text-3xl font-bold mb-4">Welcome to your Dashboard, {user.email}!</h1>
+    ) : (
+      <h1 class="text-3xl font-bold mb-4">Welcome to your Dashboard!</h1>
+    )}
+    
+    {initialError && (
+      <div class="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
+        <span class="font-medium">Error!</span> {initialError}
+      </div>
+    )}
+
+    {/* Render the DashboardWrapper as the island, passing categories */}
+    <DashboardWrapper client:load categories={categories} />
+
+    {/* Logout button can remain here or be moved inside Dashboard */}
+    <form method="POST" action="/api/auth/logout" class="mt-6">
+      <button type="submit" class="px-4 py-2 text-white bg-red-600 rounded hover:bg-red-700 transition">
+        Logout
+      </button>
+    </form>
+
+    {/* TODO: Fetch data (notes, categories) in frontmatter and render components */}
+  </div>
+</BaseLayout> 

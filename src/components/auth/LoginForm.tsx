@@ -11,40 +11,52 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
-import { useSupabase } from "../../contexts/SupabaseContext";
 
 export const LoginForm: React.FC = () => {
-  const { login, isLoading, error, user } = useAuth();
-  const { supabase } = useSupabase();
+  const { login, isLoading, error, user, isInitialized } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [resetMode, setResetMode] = useState(false);
   const [resetSent, setResetSent] = useState(false);
   const [resetError, setResetError] = useState<string | null>(null);
+  const [isResetLoading, setIsResetLoading] = useState(false);
 
   useEffect(() => {
-    if (user) {
-      window.location.href = "/dashboard";
+    if (isInitialized && user) {
+      window.location.href = "/app/dashboard";
     }
-  }, [user]);
+  }, [user, isInitialized]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (resetMode) {
+      setIsResetLoading(true);
+      setResetError(null);
+      setResetSent(false);
       try {
-        const { error } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: `${window.location.origin}/reset-password`,
+        const response = await fetch("/api/auth/reset-password", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email }),
         });
-        if (error) throw error;
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.error || "Failed to send reset link");
+        }
         setResetSent(true);
       } catch (error: any) {
-        setResetError(error.message);
+        setResetError(error.message || "Failed to send reset link");
+      } finally {
+        setIsResetLoading(false);
       }
     } else {
       await login(email, password);
-      window.location.href = "/dashboard";
     }
   };
+
+  if (!isInitialized || isLoading) {
+    return <div>Loading...</div>;
+  }
 
   if (resetMode) {
     return (
@@ -69,7 +81,7 @@ export const LoginForm: React.FC = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  disabled={isLoading}
+                  disabled={isResetLoading}
                 />
               </div>
             )}
@@ -81,8 +93,12 @@ export const LoginForm: React.FC = () => {
           </CardContent>
           <CardFooter className="flex flex-col gap-4">
             {!resetSent && (
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? "Sending..." : "Send Reset Link"}
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={isResetLoading}
+              >
+                {isResetLoading ? "Sending..." : "Send Reset Link"}
               </Button>
             )}
             <Button
@@ -150,6 +166,7 @@ export const LoginForm: React.FC = () => {
             type="button"
             variant="ghost"
             onClick={() => setResetMode(true)}
+            disabled={isLoading}
           >
             Forgot Password?
           </Button>
@@ -157,6 +174,7 @@ export const LoginForm: React.FC = () => {
             type="button"
             variant="outline"
             onClick={() => (window.location.href = "/register")}
+            disabled={isLoading}
           >
             Don't have an account? Register
           </Button>

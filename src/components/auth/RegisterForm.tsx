@@ -13,15 +13,17 @@ import {
 } from "../ui/card";
 
 export const RegisterForm: React.FC = () => {
-  const { signUp, isLoading, error } = useAuth();
+  const { signUp, isLoading, error, isInitialized } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setPasswordError(null);
+    setSuccessMessage(null);
 
     if (password !== confirmPassword) {
       setPasswordError("Passwords do not match");
@@ -35,11 +37,17 @@ export const RegisterForm: React.FC = () => {
 
     try {
       await signUp(email, password);
-      window.location.href = "/dashboard";
+      setSuccessMessage(
+        "Registration successful! Please check your email to confirm your account."
+      );
     } catch (err) {
       console.error("Registration failed:", err);
     }
   };
+
+  if (!isInitialized) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <Card className="w-[400px] mx-auto mt-8">
@@ -49,63 +57,75 @@ export const RegisterForm: React.FC = () => {
       </CardHeader>
       <form onSubmit={handleSubmit}>
         <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              disabled={isLoading}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              placeholder="Enter your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              disabled={isLoading}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="confirm-password">Confirm Password</Label>
-            <Input
-              id="confirm-password"
-              type="password"
-              placeholder="Confirm your password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-              disabled={isLoading}
-            />
-          </div>
-          {passwordError && (
-            <div className="text-sm text-red-500 dark:text-red-400">
-              {passwordError}
+          {successMessage && (
+            <div className="text-sm text-green-600 dark:text-green-400">
+              {successMessage}
             </div>
           )}
-          {error && (
-            <div className="text-sm text-red-500 dark:text-red-400">
-              {error}
-            </div>
+          {!successMessage && (
+            <>
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  disabled={isLoading}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  disabled={isLoading}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="confirm-password">Confirm Password</Label>
+                <Input
+                  id="confirm-password"
+                  type="password"
+                  placeholder="Confirm your password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                  disabled={isLoading}
+                />
+              </div>
+              {passwordError && (
+                <div className="text-sm text-red-500 dark:text-red-400">
+                  {passwordError}
+                </div>
+              )}
+              {error && (
+                <div className="text-sm text-red-500 dark:text-red-400">
+                  {error}
+                </div>
+              )}
+            </>
           )}
         </CardContent>
         <CardFooter className="flex flex-col gap-4">
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? "Registering..." : "Register"}
-          </Button>
+          {!successMessage && (
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? "Registering..." : "Register"}
+            </Button>
+          )}
           <Button
             type="button"
             variant="ghost"
             onClick={() => (window.location.href = "/login")}
+            disabled={isLoading && !successMessage}
           >
-            Already have an account? Login
+            {successMessage ? "Go to Login" : "Already have an account? Login"}
           </Button>
         </CardFooter>
       </form>
