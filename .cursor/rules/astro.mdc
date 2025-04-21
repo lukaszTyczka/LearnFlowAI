@@ -1,6 +1,6 @@
 ---
 description: 
-globs: 
+globs: .astro
 alwaysApply: false
 ---
 ## FRONTEND
