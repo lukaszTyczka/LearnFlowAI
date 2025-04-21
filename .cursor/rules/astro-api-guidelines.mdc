@@ -1,0 +1,166 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+ # Astro API Route Guidelines for React Interaction
+
+This rule provides guidelines for creating server-side API endpoints in Astro (`src/pages/api/`) that will be consumed by React components (islands) running in the browser.
+
+## Key Principles
+
+-   **Server-Side Logic:** API routes handle business logic, data fetching/mutation, and communication with external services (like Supabase or AI models).
+-   **Clear Separation:** Maintain a clear separation between server-side API logic and client-side React component logic. React components should primarily call these APIs using `fetch`.
+-   **Security:** Implement authentication and authorization checks within API routes or middleware before processing requests.
+-   **Type Safety:** Leverage TypeScript for request payloads, responses, and context (`Astro.locals`).
+
+## Implementation Details
+
+### 1. Location and Routing
+
+-   Place all API route handlers within the `src/pages/api/` directory.
+-   Astro uses file-based routing. A file at `src/pages/api/users/[id].ts` will handle requests to `/api/users/:id`.
+-   Use subdirectories to organize related endpoints (e.g., `src/pages/api/auth/`, `src/pages/api/notes/`).
+
+### 2. Handling Requests
+
+-   **HTTP Methods:** Export functions corresponding to HTTP methods (e.g., `export function GET({ params, request, locals })`, `export function POST({ request, locals })`).
+-   **Request Data:**
+    -   Access URL parameters via the `params` object in the function argument.
+    -   Access the request body, headers, and method via the `request` object (`Astro.request`). Use `await request.json()` or `await request.formData()` to parse the body.
+-   **Context (`Astro.locals`):** Access shared data, such as the authenticated user session or Supabase client instance, via `context.locals` (or just `locals` when destructured). This data is typically added by middleware.
+
+```typescript
+// Example: src/pages/api/notes/[id].ts
+import type { APIRoute } from 'astro';
+import { notesService } from '../../../lib/services/notes'; // Example service
+
+export const GET: APIRoute = async ({ params, locals }) => {
+  // Auth check using data from middleware
+  if (!locals.user) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
+  }
+
+  const noteId = params.id;
+  if (!noteId) {
+     return new Response(JSON.stringify({ error: 'Note ID required' }), { status: 400 });
+  }
+
+  try {
+    // Use locals.supabase or a service function
+    const note = await notesService.getNoteById(noteId, locals.user.id); // Pass user ID for RLS
+
+    if (!note) {
+      return new Response(JSON.stringify({ error: 'Note not found' }), { status: 404 });
+    }
+
+    return new Response(JSON.stringify(note), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  } catch (error) {
+    console.error('Error fetching note:', error);
+    return new Response(JSON.stringify({ error: 'Internal Server Error' }), { status: 500 });
+  }
+};
+
+// Add POST, PUT, DELETE handlers similarly
+```
+
+### 3. Responses
+
+-   Always return a `Response` object.
+-   For JSON APIs, stringify the data and set the `Content-Type` header to `application/json`.
+-   Use appropriate HTTP status codes (e.g., `200` OK, `201` Created, `400` Bad Request, `401` Unauthorized, `404` Not Found, `500` Internal Server Error).
+
+### 4. Input Validation
+
+-   Validate incoming data (URL parameters, request body) before processing.
+-   Use libraries like Zod for robust validation and type inference. Define schemas in `src/lib/validators/`.
+
+```typescript
+import { z } from 'zod';
+import { noteCreateSchema } from '../../../lib/validators/notes'; // Example validator
+
+export const POST: APIRoute = async ({ request, locals }) => {
+  if (!locals.user) { /* ... auth check ... */ }
+
+  try {
+    const body = await request.json();
+    const validation = noteCreateSchema.safeParse(body);
+
+    if (!validation.success) {
+      return new Response(JSON.stringify({ error: 'Invalid input', details: validation.error.flatten() }), { status: 400 });
+    }
+
+    const { content, categoryId } = validation.data;
+    // ... process validated data ...
+     return new Response(JSON.stringify({ message: 'Note created' }), { status: 201 });
+  } catch (error) {
+    // ... error handling ...
+  }
+};
+```
+
+### 5. Error Handling
+
+-   Wrap request handling logic in `try...catch` blocks.
+-   Log errors server-side for debugging.
+-   Return meaningful error responses to the client with appropriate status codes. Avoid leaking sensitive details.
+
+### 6. Authentication & Authorization
+
+-   Rely on Astro middleware to handle session verification and populate `Astro.locals` with user information.
+-   Check for the presence and validity of `locals.user` (or similar) at the beginning of each protected API route handler.
+-   Ensure database queries (e.g., via Supabase with RLS) inherently respect user permissions, often by passing the `locals.user.id`.
+
+### 7. Calling APIs from React
+
+-   Use the standard `fetch` API within your React components (islands) to call these Astro API endpoints.
+-   Handle loading states, data display, and error states within the React component based on the API response.
+
+```typescript
+// Example React component
+import { useState, useEffect } from 'react';
+
+function NoteDisplay({ noteId }) {
+  const [note, setNote] = useState(null);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchNote() {
+      try {
+        setLoading(true);
+        const response = await fetch(`/api/notes/${noteId}`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        setNote(data);
+      } catch (e) {
+        setError(e.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchNote();
+  }, [noteId]);
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error}</p>;
+  if (!note) return <p>Note not found.</p>;
+
+  return (
+    <div>
+      <h2>Note Content</h2>
+      <p>{note.content}</p>
+      {/* Display summary, Q&A etc. */}
+    </div>
+  );
+}
+export default NoteDisplay;
+
+```
+
+By following these guidelines, you can create robust, secure, and maintainable API endpoints in Astro that seamlessly integrate with your React frontend components.
