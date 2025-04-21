@@ -10,7 +10,7 @@ Celem tego planu jest migracja istniejącej aplikacji LearnFlowAI (opartej prawd
 - Zaktualizowany Tech Stack: @tech-stack.md
 - Zaktualizowana specyfikacja autentykacji: @auth-spec.md
 - Diagram przepływu autentykacji: @diagrams/auth.md
-- Wzorcowa inicjalizacja Supabase w Astro: @api-supabase-react-init.mdc
+- Wzorcowa inicjalizacja Supabase w Astro: @api-supabase-astro-init.mdc
 
 ## Fazy Refaktoryzacji
 
@@ -84,5 +84,6 @@ Celem tego planu jest migracja istniejącej aplikacji LearnFlowAI (opartej prawd
 - **Minimalny JavaScript:** Używanie React Islands (`client:*`) tylko tam, gdzie interaktywność jest absolutnie konieczna.
 - **Bezpieczeństwo:** Zarządzanie sesją i komunikacja z Supabase głównie po stronie serwera (Astro middleware, API routes).
 - **Separacja:** Wyraźne oddzielenie logiki serwerowej (Astro) od klienckiej (React Islands).
+- **Zarządzanie stanem w React (Islands):** Na początkowym etapie refaktoryzacji skupić się na użyciu podstawowych hooków React (`useState`, `useEffect`) do zarządzania stanem lokalnym wysp. Unikać wprowadzania złożonych bibliotek do zarządzania stanem globalnym, dopóki nie okaże się to absolutnie konieczne. Komunikacja między wyspami i aktualizacja danych powinna opierać się głównie na wywoływaniu API Astro i przekazywaniu zaktualizowanych `props`.
 - **Walidacja:** Stosowanie walidacji danych (np. Zod) zarówno w API routes Astro, jak i opcjonalnie w formularzach React.
 - **Typowanie:** Pełne wykorzystanie TypeScript w całym stosie (Astro, React, lib).
