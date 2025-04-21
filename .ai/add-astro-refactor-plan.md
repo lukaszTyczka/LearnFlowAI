@@ -10,6 +10,7 @@ Celem tego planu jest migracja istniejącej aplikacji LearnFlowAI (opartej prawd
 - Zaktualizowany Tech Stack: @tech-stack.md
 - Zaktualizowana specyfikacja autentykacji: @auth-spec.md
 - Diagram przepływu autentykacji: @diagrams/auth.md
+- Wzorcowa inicjalizacja Supabase w Astro: @api-supabase-react-init.mdc
 
 ## Fazy Refaktoryzacji
 
