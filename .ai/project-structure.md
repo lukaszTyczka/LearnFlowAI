@@ -1,0 +1,63 @@
+# Struktura Projektu LearnFlowAI (Astro + React)
+
+Poniższa struktura katalogów jest zalecana dla projektu wykorzystującego Astro jako główny framework, z React do komponentów interaktywnych (Islands).
+
+- `./public/`
+  - Zasoby statyczne dostępne publicznie (np. `favicon.ico`, `robots.txt`). Pliki są serwowane bezpośrednio z głównego adresu URL.
+- `./src/`
+
+  - Główny katalog kodu źródłowego aplikacji.
+  - `./src/assets/`
+    - Zasoby statyczne przetwarzane przez Astro (np. obrazy, niestandardowe czcionki).
+  - `./src/components/`
+    - Komponenty UI wielokrotnego użytku.
+    - `./src/components/ui/`
+      - Komponenty z biblioteki Shadcn/ui (React). Mogą być używane jako Astro Islands.
+    - `./src/components/react/`
+      - Niestandardowe, interaktywne komponenty React, przeznaczone do użycia jako Astro Islands (`client:*`).
+    - `./src/components/astro/`
+      - Statyczne komponenty UI napisane w Astro (`.astro`).
+  - `./src/content/`
+    - Kolekcje treści zarządzane przez Astro (np. wpisy blogowe, dokumentacja w Markdown/MDX), jeśli będą używane.
+  - `./src/db/`
+    - Konfiguracja klienta Supabase (zarówno serwerowego dla Astro, jak i potencjalnie klienckiego, jeśli potrzebny).
+    - Definicje typów bazy danych (np. generowane przez Supabase CLI).
+  - `./src/env.d.ts`
+    - Definicje typów dla zmiennych środowiskowych TypeScript.
+  - `./src/layouts/`
+    - Komponenty layoutów Astro (`.astro`), definiujące strukturę stron (np. nagłówek, stopka, nawigacja).
+  - `./src/lib/`
+    - Logika biznesowa, funkcje pomocnicze, serwisy.
+    - `./src/lib/auth/`
+      - Funkcje pomocnicze związane z autentykacją po stronie serwera (używane w middleware i API routes).
+    - `./src/lib/api/`
+      - Funkcje pomocnicze do komunikacji z zewnętrznymi API (np. OpenRouter, Todoist) używane po stronie serwera.
+    - `./src/lib/utils/`
+      - Ogólne funkcje pomocnicze.
+    - `./src/lib/validators/`
+      - Schematy walidacji danych (np. Zod), używane zarówno na backendzie (API routes), jak i potencjalnie na frontendzie (w React Islands).
+  - `./src/middleware/`
+    - Middleware Astro (plik `index.ts` lub `middleware.ts`), np. do obsługi sesji, autoryzacji, logowania.
+  - `./src/pages/`
+    - Strony aplikacji (routing oparty na plikach). Pliki `.astro`, `.md`, `.mdx`.
+    - `./src/pages/api/`
+      - Endpointy API Astro (server-side).
+      - `./src/pages/api/auth/`
+        - Endpointy związane z autentykacją (np. `login.ts`, `register.ts`, `logout.ts`, `session.ts`).
+      - `./src/pages/api/notes/`
+        - Endpointy API do zarządzania notatkami (CRUD).
+      - `./src/pages/api/ai/`
+        - Endpointy do interakcji z AI (np. generowanie podsumowań, Q&A).
+  - `./src/styles/`
+    - Globalne style CSS (np. `global.css`).
+  - `./src/types/`
+    - Globalne definicje typów TypeScript współdzielone w projekcie (np. typy DTO, niestandardowe typy domenowe). Może to być plik `types.ts` lub katalog.
+
+- `astro.config.mjs` - Główny plik konfiguracyjny Astro.
+- `package.json` - Definicje zależności i skryptów projektu.
+- `tsconfig.json` - Konfiguracja TypeScript.
+- `tailwind.config.mjs` - Konfiguracja Tailwind CSS.
+- `.env` - Plik ze zmiennymi środowiskowymi (lokalnymi, niewersjonowany).
+- `.env.example` - Przykładowy plik zmiennych środowiskowych.
+- `.gitignore` - Pliki i katalogi ignorowane przez Git.
+- `README.md` - Dokumentacja projektu.
