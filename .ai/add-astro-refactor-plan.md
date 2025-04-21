@@ -20,7 +20,8 @@ Celem tego planu jest migracja istniejącej aplikacji LearnFlowAI (opartej prawd
 2.  **Instalacja zależności:** Dodanie Astro, integracji `@astrojs/react`, `@astrojs/tailwind`, klienta `supabase-js` (do użytku serwerowego), oraz innych niezbędnych bibliotek (np. Zod do walidacji).
 3.  **Konfiguracja Astro:** Skonfigurowanie `astro.config.mjs` (integracje React, Tailwind, tryb `server` dla SSR), `tailwind.config.mjs`, `tsconfig.json`.
 4.  **Struktura katalogów:** Utworzenie podstawowej struktury katalogów zgodnie z @project-structure.md.
-5.  **Podstawowy layout:** Stworzenie głównego layoutu aplikacji w `src/layouts/BaseLayout.astro` (np. z podstawową strukturą HTML, integracją globalnych styli, podpięciem Tailwind).
+5.  **Zmienne Środowiskowe:** Utworzenie/Aktualizacja pliku `.env.example`. **Kluczowe:** Zmienne używane po stronie serwera (np. `SUPABASE_URL`, `SUPABASE_KEY`, `OPENROUTER_API_KEY`) **nie powinny** mieć prefixu `PUBLIC_` (ani `VITE_`). Należy usunąć prefixy z istniejących kluczy serwerowych (np. zmienić `VITE_SUPABASE_URL` na `SUPABASE_URL`) i dodać brakujące klucze serwerowe.
+6.  **Podstawowy layout:** Stworzenie głównego layoutu aplikacji w `src/layouts/BaseLayout.astro` (np. z podstawową strukturą HTML, integracją globalnych styli, podpięciem Tailwind).
 
 ### Faza 2: Implementacja Autentykacji w Astro
 
