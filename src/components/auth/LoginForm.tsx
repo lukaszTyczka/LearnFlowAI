@@ -29,7 +29,10 @@ export const LoginForm: React.FC = () => {
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await login(email, password);
+    const result = await login(email, password);
+    if (result) {
+      window.location.href = "/app/dashboard";
+    }
   };
 
   const handleResetSubmit = async (e: React.FormEvent) => {

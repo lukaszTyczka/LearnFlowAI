@@ -50,10 +50,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
       console.error("Error setting session:", sessionSetError.message);
       sessionError = sessionSetError;
     } else if (data?.session) {
-      // Session is valid, user is logged in
       user = data.user;
-      // Refresh session if needed (Supabase client might handle this automatically,
-      // but explicitly setting cookies ensures they are updated)
       if (
         data.session.access_token !== accessToken ||
         data.session.refresh_token !== refreshToken
@@ -61,7 +58,6 @@ export const onRequest = defineMiddleware(async (context, next) => {
         setAuthCookies(context, data.session);
       }
     } else {
-      // Session might be invalid or expired, attempt refresh
       const { data: refreshData, error: refreshError } =
         await supabaseClient.auth.refreshSession({
           refresh_token: refreshToken,
@@ -70,20 +66,17 @@ export const onRequest = defineMiddleware(async (context, next) => {
       if (refreshError) {
         console.error("Error refreshing session:", refreshError.message);
         sessionError = refreshError;
-        // Clear invalid cookies if refresh fails
         context.cookies.delete("sb-access-token", { path: "/" });
         context.cookies.delete("sb-refresh-token", { path: "/" });
       } else if (refreshData?.session) {
         user = refreshData.user;
         setAuthCookies(context, refreshData.session);
       } else {
-        // Clear invalid cookies if refresh fails
         context.cookies.delete("sb-access-token", { path: "/" });
         context.cookies.delete("sb-refresh-token", { path: "/" });
       }
     }
   } else {
-    // No tokens found, try getting user from existing client session (e.g., after OAuth)
     const { data } = await supabaseClient.auth.getUser();
     user = data?.user ?? null;
   }

@@ -45,6 +45,7 @@ export const RegisterForm: React.FC = () => {
       setEmail("");
       setPassword("");
       setConfirmPassword("");
+      window.location.href = "/app/dashboard";
     }
   };
 
