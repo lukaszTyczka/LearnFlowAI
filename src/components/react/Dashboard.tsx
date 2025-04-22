@@ -29,10 +29,6 @@ const DashboardReact: React.FC<DashboardProps> = ({
   const [isSaving, setIsSaving] = useState(false);
   const [isLoadingNotes, setIsLoadingNotes] = useState(false);
 
-  // if (!user) {
-  //   return <div>Loading...</div>;
-  // }
-
   const loadCategories = useCallback(async () => {
     if (categories.length > 0) return;
 
@@ -156,7 +152,7 @@ const DashboardReact: React.FC<DashboardProps> = ({
               {user.email}
             </p>
           )}
-          <Button variant="ghost" size="sm" onClick={handleLogout}>
+          <Button size="sm" onClick={handleLogout}>
             Logout
           </Button>
         </div>
