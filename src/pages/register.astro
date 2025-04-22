@@ -1,13 +1,10 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-// Import the wrapper component
-import { RegisterWrapper } from '../components/auth/RegisterWrapper'; 
-
-// Middleware should redirect logged-in users away from this page
+import { RegisterForm } from '../components/auth/RegisterForm'; 
 ---
+
 <BaseLayout title="Register - LearnFlowAI">
   <div class="container mx-auto mt-10">
-     {/* Render the RegisterWrapper as the island */}
-    <RegisterWrapper client:load />
+    <RegisterForm client:load />
   </div>
 </BaseLayout> 

@@ -1,5 +1,11 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useAuth } from "../../contexts/AuthContext";
+import { useStore } from "@nanostores/react";
+import {
+  $isInitialized,
+  $user,
+  fetchInitialUser,
+  logout,
+} from "../../stores/authStore";
 import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
 import { ScrollArea } from "../ui/scroll-area";
@@ -10,13 +16,18 @@ type Note = Tables<"notes">;
 import { toast } from "sonner";
 
 interface DashboardProps {
-  categories: Category[];
+  initialCategories?: Category[];
 }
 
 const DashboardReact: React.FC<DashboardProps> = ({
-  categories: initialCategories,
+  initialCategories = [],
 }) => {
-  const { user } = useAuth();
+  const user = useStore($user);
+  const isInitialized = useStore($isInitialized);
+  const [categories, setCategories] = useState<Category[]>(initialCategories);
+  const [isLoadingCategories, setIsLoadingCategories] = useState<boolean>(
+    !initialCategories.length
+  );
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [noteContent, setNoteContent] = useState("");
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
@@ -24,11 +35,47 @@ const DashboardReact: React.FC<DashboardProps> = ({
   const [isSaving, setIsSaving] = useState(false);
   const [isLoadingNotes, setIsLoadingNotes] = useState(false);
 
+  // todo: check why this is needed!
   useEffect(() => {
-    if (initialCategories.length > 0 && !selectedCategory) {
-      setSelectedCategory(initialCategories[0].id);
+    if (!isInitialized) {
+      fetchInitialUser();
     }
-  }, [initialCategories, selectedCategory]);
+    console.log("isInitialized", isInitialized);
+  }, [isInitialized]);
+
+  const loadCategories = useCallback(async () => {
+    if (categories.length > 0) return;
+
+    setIsLoadingCategories(true);
+    try {
+      const response = await fetch(`/api/categories`);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to load categories");
+      }
+      const fetchedData = await response.json();
+      setCategories(fetchedData.categories || []);
+      if (fetchedData.categories?.length > 0) {
+        setSelectedCategory(fetchedData.categories[0].id);
+      }
+    } catch (err: any) {
+      console.error("Error loading categories:", err);
+      toast.error(err.message || "Failed to load categories");
+      setCategories([]);
+    } finally {
+      setIsLoadingCategories(false);
+    }
+  }, [user, categories.length]);
+
+  useEffect(() => {
+    loadCategories();
+  }, [loadCategories]);
+
+  useEffect(() => {
+    if (!selectedCategory && categories.length > 0) {
+      setSelectedCategory(categories[0].id);
+    }
+  }, [categories, selectedCategory]);
 
   const loadNotes = useCallback(async () => {
     if (!selectedCategory || !user) {
@@ -45,6 +92,7 @@ const DashboardReact: React.FC<DashboardProps> = ({
       }
       const fetchedNotes = await response.json();
       setNotes(fetchedNotes.notes || []);
+      setSelectedNote(null);
     } catch (err: any) {
       console.error("Error loading notes:", err);
       toast.error(err.message || "Failed to load notes");
@@ -59,15 +107,9 @@ const DashboardReact: React.FC<DashboardProps> = ({
   }, [loadNotes]);
 
   const handleLogout = async () => {
-    try {
-      const response = await fetch("/api/auth/logout", { method: "POST" });
-      if (!response.ok) {
-        throw new Error("Logout failed");
-      }
+    const success = await logout();
+    if (success) {
       window.location.href = "/";
-    } catch (error: any) {
-      console.error("Logout failed:", error);
-      toast.error("Logout failed");
     }
   };
 
@@ -119,9 +161,11 @@ const DashboardReact: React.FC<DashboardProps> = ({
       {/* Top Bar */}
       <div className="h-14 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
         <div className="h-full flex items-center justify-end space-x-4 px-4">
-          <p className="text-sm text-muted-foreground mr-[20px]">
-            {user?.email}
-          </p>
+          {user && (
+            <p className="text-sm text-muted-foreground mr-[20px]">
+              {user.email}
+            </p>
+          )}
           <Button variant="ghost" size="sm" onClick={handleLogout}>
             Logout
           </Button>
@@ -134,20 +178,30 @@ const DashboardReact: React.FC<DashboardProps> = ({
           <div className="h-full p-4">
             <h2 className="text-lg font-semibold mb-4">Categories</h2>
             <ScrollArea className="h-[calc(100%-2rem)]">
-              <div className="space-y-1 pr-4">
-                {initialCategories.map((category: Category) => (
-                  <Button
-                    key={category.id}
-                    variant={
-                      selectedCategory === category.id ? "secondary" : "ghost"
-                    }
-                    className="w-full justify-start"
-                    onClick={() => setSelectedCategory(category.id)}
-                  >
-                    {category.name}
-                  </Button>
-                ))}
-              </div>
+              {isLoadingCategories ? (
+                <div className="text-center py-4 text-muted-foreground">
+                  Loading...
+                </div>
+              ) : categories.length > 0 ? (
+                <div className="space-y-1 pr-4">
+                  {categories.map((category: Category) => (
+                    <Button
+                      key={category.id}
+                      variant={
+                        selectedCategory === category.id ? "secondary" : "ghost"
+                      }
+                      className="w-full justify-start"
+                      onClick={() => setSelectedCategory(category.id)}
+                    >
+                      {category.name}
+                    </Button>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-4 text-muted-foreground">
+                  No categories found.
+                </div>
+              )}
             </ScrollArea>
           </div>
         </div>
@@ -158,18 +212,22 @@ const DashboardReact: React.FC<DashboardProps> = ({
             <div className="rounded-lg border bg-card">
               <div className="p-4">
                 <Textarea
-                  placeholder="Enter your note here... (300-10000 chars)"
+                  placeholder={
+                    user
+                      ? "Enter your note here... (300-10000 chars)"
+                      : "Please log in to create notes"
+                  }
                   className="min-h-[100px] resize-none w-[90%] mx-auto"
                   value={noteContent}
                   onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
                     setNoteContent(e.target.value)
                   }
-                  disabled={isSaving}
+                  disabled={isSaving || !user}
                 />
                 <div className="mt-2 flex justify-center">
                   <Button
                     onClick={handleSaveNote}
-                    disabled={isSaving || !selectedCategory}
+                    disabled={isSaving || !selectedCategory || !user}
                   >
                     {isSaving ? "Saving..." : "Save Note"}
                   </Button>
@@ -180,7 +238,6 @@ const DashboardReact: React.FC<DashboardProps> = ({
             {/* Notes List / Note Details */}
             <div className="flex-1">
               {selectedNote ? (
-                // Note Details View
                 <div className="space-y-4">
                   <Button
                     variant="ghost"
@@ -203,15 +260,13 @@ const DashboardReact: React.FC<DashboardProps> = ({
                       <p>{selectedNote.summary}</p>
                     </Card>
                   )}
-                  {/* Q&A section will be implemented later when we add Q&A functionality */}
                 </div>
               ) : (
-                // Notes List View
                 <div className="space-y-4">
                   <h2 className="text-xl font-semibold">
                     {selectedCategory
                       ? `Notes - ${
-                          initialCategories.find(
+                          categories.find(
                             (c: Category) => c.id === selectedCategory
                           )?.name ?? "Selected Category"
                         }`
@@ -243,8 +298,10 @@ const DashboardReact: React.FC<DashboardProps> = ({
                     </div>
                   ) : (
                     <div className="text-center py-8 text-muted-foreground">
-                      {selectedCategory
-                        ? "No notes in this category yet. Create your first note above!"
+                      {!user
+                        ? "Please log in to view notes."
+                        : selectedCategory
+                        ? "No notes in this category yet. Create one above!"
                         : "Select a category to view notes"}
                     </div>
                   )}

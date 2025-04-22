@@ -1,5 +1,11 @@
-import React, { useState, useEffect } from "react";
-import { useAuth } from "../../contexts/AuthContext";
+import React, { useState } from "react";
+import { useStore } from "@nanostores/react";
+import {
+  $isAuthLoading,
+  $authError,
+  login,
+  requestPasswordReset,
+} from "../../stores/authStore";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
@@ -13,50 +19,27 @@ import {
 } from "../ui/card";
 
 export const LoginForm: React.FC = () => {
-  const { login, isLoading, error, user, isInitialized } = useAuth();
+  const isLoading = useStore($isAuthLoading);
+  const error = useStore($authError);
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [resetMode, setResetMode] = useState(false);
   const [resetSent, setResetSent] = useState(false);
-  const [resetError, setResetError] = useState<string | null>(null);
-  const [isResetLoading, setIsResetLoading] = useState(false);
 
-  useEffect(() => {
-    if (isInitialized && user) {
-      window.location.href = "/app/dashboard";
-    }
-  }, [user, isInitialized]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (resetMode) {
-      setIsResetLoading(true);
-      setResetError(null);
-      setResetSent(false);
-      try {
-        const response = await fetch("/api/auth/reset-password", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email }),
-        });
-        const data = await response.json();
-        if (!response.ok) {
-          throw new Error(data.error || "Failed to send reset link");
-        }
-        setResetSent(true);
-      } catch (error: any) {
-        setResetError(error.message || "Failed to send reset link");
-      } finally {
-        setIsResetLoading(false);
-      }
-    } else {
-      await login(email, password);
-    }
+    await login(email, password);
   };
 
-  if (!isInitialized || isLoading) {
-    return <div>Loading...</div>;
-  }
+  const handleResetSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setResetSent(false);
+    const result = await requestPasswordReset(email);
+    if (result.success) {
+      setResetSent(true);
+    }
+  };
 
   if (resetMode) {
     return (
@@ -65,11 +48,11 @@ export const LoginForm: React.FC = () => {
           <CardTitle>Reset Password</CardTitle>
           <CardDescription>
             {resetSent
-              ? "Check your email for the password reset link"
-              : "Enter your email to receive a password reset link"}
+              ? "Check your email for the password reset link."
+              : "Enter your email to receive a password reset link."}
           </CardDescription>
         </CardHeader>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleResetSubmit}>
           <CardContent className="space-y-4">
             {!resetSent && (
               <div className="space-y-2">
@@ -81,24 +64,20 @@ export const LoginForm: React.FC = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  disabled={isResetLoading}
+                  disabled={isLoading}
                 />
               </div>
             )}
-            {resetError && (
+            {error && !resetSent && (
               <div className="text-sm text-red-500 dark:text-red-400">
-                {resetError}
+                {error}
               </div>
             )}
           </CardContent>
           <CardFooter className="flex flex-col gap-4">
             {!resetSent && (
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={isResetLoading}
-              >
-                {isResetLoading ? "Sending..." : "Send Reset Link"}
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? "Sending..." : "Send Reset Link"}
               </Button>
             )}
             <Button
@@ -106,9 +85,10 @@ export const LoginForm: React.FC = () => {
               variant="ghost"
               onClick={() => {
                 setResetMode(false);
-                setResetError(null);
                 setResetSent(false);
+                $authError.set(null);
               }}
+              disabled={isLoading}
             >
               Back to Login
             </Button>
@@ -126,7 +106,7 @@ export const LoginForm: React.FC = () => {
           Enter your credentials to access your account
         </CardDescription>
       </CardHeader>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleLoginSubmit}>
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
@@ -165,7 +145,10 @@ export const LoginForm: React.FC = () => {
           <Button
             type="button"
             variant="ghost"
-            onClick={() => setResetMode(true)}
+            onClick={() => {
+              setResetMode(true);
+              $authError.set(null);
+            }}
             disabled={isLoading}
           >
             Forgot Password?

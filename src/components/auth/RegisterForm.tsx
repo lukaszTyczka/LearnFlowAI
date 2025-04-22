@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { useAuth } from "../../contexts/AuthContext";
+import { useStore } from "@nanostores/react";
+import { $isAuthLoading, $authError, signUp } from "../../stores/authStore";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
@@ -13,7 +14,9 @@ import {
 } from "../ui/card";
 
 export const RegisterForm: React.FC = () => {
-  const { signUp, isLoading, error, isInitialized } = useAuth();
+  const isLoading = useStore($isAuthLoading);
+  const error = useStore($authError);
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -24,6 +27,7 @@ export const RegisterForm: React.FC = () => {
     e.preventDefault();
     setPasswordError(null);
     setSuccessMessage(null);
+    $authError.set(null);
 
     if (password !== confirmPassword) {
       setPasswordError("Passwords do not match");
@@ -35,19 +39,14 @@ export const RegisterForm: React.FC = () => {
       return;
     }
 
-    try {
-      await signUp(email, password);
-      setSuccessMessage(
-        "Registration successful! Please check your email to confirm your account."
-      );
-    } catch (err) {
-      console.error("Registration failed:", err);
+    const result = await signUp(email, password);
+    if (result.success) {
+      setSuccessMessage(result.message);
+      setEmail("");
+      setPassword("");
+      setConfirmPassword("");
     }
   };
-
-  if (!isInitialized) {
-    return <div>Loading...</div>;
-  }
 
   return (
     <Card className="w-[400px] mx-auto mt-8">
@@ -123,7 +122,7 @@ export const RegisterForm: React.FC = () => {
             type="button"
             variant="ghost"
             onClick={() => (window.location.href = "/login")}
-            disabled={isLoading && !successMessage}
+            disabled={isLoading && successMessage !== null}
           >
             {successMessage ? "Go to Login" : "Already have an account? Login"}
           </Button>

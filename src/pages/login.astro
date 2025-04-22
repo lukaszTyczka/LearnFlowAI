@@ -1,13 +1,10 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { LoginWrapper } from '../components/auth/LoginWrapper';
-
-// Middleware should redirect logged-in users away from this page
+import { LoginForm } from '../components/auth/LoginForm';
 ---
+
 <BaseLayout title="Login - LearnFlowAI">
   <div class="container mx-auto mt-10">
-    {/* Render the LoginWrapper as the island */}
-    {/* Use client:load for immediate interactivity */}
-    <LoginWrapper client:load />
+    <LoginForm client:load />
   </div>
 </BaseLayout> 
