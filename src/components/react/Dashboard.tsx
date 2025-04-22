@@ -1,11 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useStore } from "@nanostores/react";
-import {
-  $isInitialized,
-  $user,
-  fetchInitialUser,
-  logout,
-} from "../../stores/authStore";
+import { $user, logout } from "../../stores/authStore";
 import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
 import { ScrollArea } from "../ui/scroll-area";
@@ -23,7 +18,6 @@ const DashboardReact: React.FC<DashboardProps> = ({
   initialCategories = [],
 }) => {
   const user = useStore($user);
-  const isInitialized = useStore($isInitialized);
   const [categories, setCategories] = useState<Category[]>(initialCategories);
   const [isLoadingCategories, setIsLoadingCategories] = useState<boolean>(
     !initialCategories.length
@@ -35,13 +29,9 @@ const DashboardReact: React.FC<DashboardProps> = ({
   const [isSaving, setIsSaving] = useState(false);
   const [isLoadingNotes, setIsLoadingNotes] = useState(false);
 
-  // todo: check why this is needed!
-  useEffect(() => {
-    if (!isInitialized) {
-      fetchInitialUser();
-    }
-    console.log("isInitialized", isInitialized);
-  }, [isInitialized]);
+  // if (!user) {
+  //   return <div>Loading...</div>;
+  // }
 
   const loadCategories = useCallback(async () => {
     if (categories.length > 0) return;

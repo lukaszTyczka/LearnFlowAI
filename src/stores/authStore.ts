@@ -12,11 +12,9 @@ export const $authError = atom<string | null>(null);
 export const $isInitialized = atom<boolean>(false);
 
 export function setUser(user: AppUser | null) {
-  console.log("setting user", user);
   $user.set(user);
   if (!$isInitialized.get()) {
     $isInitialized.set(true);
-    console.log("isInitialized", $isInitialized.get());
   }
   $isAuthLoading.set(false);
 }
