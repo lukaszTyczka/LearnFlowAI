@@ -30,7 +30,6 @@ export function useNotes(user: AppUser | null) {
         setNotes(fetchedNotes.notes || []);
         setSelectedNote(null);
       } catch (err: any) {
-        console.error("Error loading notes:", err);
         toast.error(err.message || "Failed to load notes");
         setNotes([]);
       } finally {
@@ -77,7 +76,6 @@ export function useNotes(user: AppUser | null) {
         setNoteContent("");
         return true;
       } catch (err: any) {
-        console.error("Error saving note:", err);
         toast.error(err.message || "Failed to save note. Please try again.");
         return false;
       } finally {
