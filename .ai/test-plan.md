@@ -17,18 +17,14 @@ Zakres testów obejmuje:
 ## 3. Typy testów do przeprowadzenia
 
 - **Testy jednostkowe:** Weryfikacja pojedynczych funkcji i komponentów (przy użyciu Vitest i React Testing Library).
-- **Testy integracyjne:** Sprawdzenie poprawności współdziałania między komponentami, warstwą API i bazą danych (np. z użyciem Supertest).
 - **Testy E2E:** Symulowane kluczowe scenariusze użytkownika, testowanie najważniejszych przepływów aplikacji (przy użyciu Playwright).
 - **Testy dostępności:** Podstawowa weryfikacja zgodności z WCAG przy użyciu narzędzi zintegrowanych z Playwright (np. axe).
-- **Testy bezpieczeństwa:** Podstawowa weryfikacja implementacji autoryzacji i uwierzytelniania.
 
 ## 4. Scenariusze testowe dla kluczowych funkcjonalności
 
 - **Rejestracja i logowanie:** Sprawdzenie poprawności formularzy, walidacji danych, komunikatów o błędach oraz mechanizmów autoryzacji.
 - **Nawigacja i routing:** Testowanie przepływu między stronami Astro oraz interakcji z dynamicznymi komponentami React.
 - **Interakcje UI:** Weryfikacja działania komponentów opartych na Shadcn/ui, poprawnego wyświetlania i reakcji na zdarzenia użytkownika.
-- **Zapytania do API:** Testy integracyjne endpointów API – poprawność przesyłania danych, obsługa błędów oraz bezpieczeństwo.
-- **Responsywność:** Testowanie zachowania aplikacji na urządzeniach o różnych rozdzielczościach i przeglądarkach.
 
 ## 5. Środowisko testowe
 

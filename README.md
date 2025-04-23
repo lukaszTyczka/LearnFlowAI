@@ -15,6 +15,9 @@ LearnFlow AI is a personal AI assistant for learning, designed especially for de
   - [Supabase](https://supabase.com/) (using PostgreSQL with built-in authentication and storage)
 - **AI Integration:**
   - [OpenRouter](https://openrouter.ai/) for access to various AI models
+- **Testing:**
+  - Unit Testing: [Vitest](https://vitest.dev/) with [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/)
+  - E2E Testing: [Playwright](https://playwright.dev/) with integrated accessibility testing
 - **Additional Integrations:**
   - Exporting Q&A sets as CSV for [Notion](https://www.notion.so/)
   - Task creation in [Todoist](https://todoist.com/) with the `learning` tag

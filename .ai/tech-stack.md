@@ -31,6 +31,17 @@ This document outlines the technology stack for the LearnFlowAI project, combini
 - **CI/CD Pipeline**: GitHub Actions – automates building, testing, and deployment processes.
 - **Hosting**: Docker-based deployment on a dedicated VPS – ensures scalable and reliable hosting.
 
+## Testing Framework
+
+- **Unit Testing**:
+  - **Vitest** – Fast testing framework compatible with Vite, used for unit testing React components and service functions.
+  - **React Testing Library** – Testing utilities for React that encourage good testing practices by focusing on user interactions rather than implementation details.
+- **E2E Testing**:
+  - **Playwright** – Cross-browser testing framework for end-to-end testing, simulating real user scenarios across different browsers.
+  - **Accessibility Testing** – Integration of accessibility testing tools like axe with Playwright.
+- **Quality Tools**:
+  - **ESLint & Prettier** – Ensuring code quality and consistency.
+
 ## Additional Integrations
 
 - **Notion Integration**: Export generated Q&A sets to CSV for easy import into Notion.
