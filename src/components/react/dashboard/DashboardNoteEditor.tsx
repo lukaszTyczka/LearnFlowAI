@@ -19,6 +19,13 @@ const DashboardNoteEditor: React.FC<DashboardNoteEditorProps> = ({
   onContentChange,
   onSave,
 }) => {
+  const isButtonEnabled =
+    !isSaving &&
+    hasCategorySelected &&
+    isUserLoggedIn &&
+    noteContent.length >= 300 &&
+    noteContent.length <= 10000;
+
   return (
     <div className="rounded-lg border bg-card">
       <div className="p-4">
@@ -35,10 +42,18 @@ const DashboardNoteEditor: React.FC<DashboardNoteEditorProps> = ({
           }
           disabled={isSaving || !isUserLoggedIn}
         />
+        <div className="text-sm text-gray-500 text-right w-[90%] mx-auto mt-1">
+          300/{noteContent.length}/10000
+        </div>
         <div className="mt-2 flex justify-center">
           <Button
             onClick={onSave}
             disabled={isSaving || !hasCategorySelected || !isUserLoggedIn}
+            className={
+              isButtonEnabled
+                ? "bg-blue-600 hover:bg-blue-700 text-white"
+                : "bg-gray-300 text-gray-500"
+            }
           >
             {isSaving ? "Saving..." : "Save Note"}
           </Button>
