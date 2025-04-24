@@ -3,34 +3,54 @@ description:
 globs: 
 alwaysApply: true
 ---
-# AI Rules for {app-name}
+# AI Rules for LearnFlowAI 
 
-{project-description}
+Personal AI Learning Assistant is a platform (initially web-based or console-based) designed as a "second brain" to support the learning process, especially for programmers. The system accepts notes in text formats (.md, .txt, pasted text) as well as code snippets. By leveraging artificial intelligence (via OpenRouter, starting with models like gpt-4o-mini), the platform automatically generates concise summaries (in continuous text), categorizes content into user-defined groups (using specific prompts), and creates sets of multiple-choice test questions (Q&A) in an ABCD format to verify and reinforce knowledge. The MVP (Minimum Viable Product) focuses on validating the core value for the early adopter user ("client zero") in terms of processing materials and generating helpful outputs. The system's backend will be implemented in JS/TS. The product includes basic integrations with Notion (exporting Q&A in CSV format) and Todoist (creating tasks tagged with 'learning'). A key element is a built-in mechanism for assessing the quality of AI-generated content, as well as storing notes, results, and evaluations in a simple database.
 
 ## Tech Stack
 
 - Astro 5
 - TypeScript 5
 - React 19
-- Tailwind 4
+- Tailwind 5
 - Shadcn/ui
 
 ## Project Structure
 
 When introducing changes to the project, always follow the directory structure below:
 
-- `./src` - source code
-- `./src/layouts` - Astro layouts
-- `./src/pages` - Astro pages
-- `./src/pages/api` - API endpoints
-- `./src/middleware/index.ts` - Astro middleware
-- `./src/db` - Supabase clients and types
-- `./src/types.ts` - Shared types for backend and frontend (Entities, DTOs)
-- `./src/components` - Client-side components written in Astro (static) and React (dynamic)
-- `./src/components/ui` - Client-side components from Shadcn/ui
-- `./src/lib` - Services and helpers 
-- `./src/assets` - static internal assets
-- `./public` - public assets
+- `./public/` - Public assets including static files like `favicon.ico` and `robots.txt`.
+- `./src/` - Main source code directory.
+  - `./src/assets/` - Static assets processed by Astro (e.g., images, custom fonts).
+  - `./src/components/` - Reusable UI components.
+    - `./src/components/ui/` - Components from Shadcn/ui for Astro Islands.
+    - `./src/components/react/` - Custom interactive React components (used as Astro Islands).
+    - `./src/components/astro/` - Static UI components written in Astro (`.astro`).
+  - `./src/content/` - Content collections managed by Astro (e.g., blog posts, MDX docs).
+  - `./src/db/` - Supabase client configuration and database type definitions.
+  - `./src/env.d.ts` - TypeScript definitions for environment variables.
+  - `./src/layouts/` - Astro layout components defining page structure (e.g., header, footer, navigation).
+  - `./src/lib/` - Business logic, helper functions, and services.
+    - `./src/lib/auth/` - Server-side authentication helpers for middleware and API routes.
+    - `./src/lib/api/` - Helper functions to communicate with external APIs (e.g., OpenRouter, Todoist).
+    - `./src/lib/utils/` - General helper functions.
+    - `./src/lib/validators/` - Data validation schemas (using Zod) for backend and frontend.
+  - `./src/middleware/` - Astro middleware, typically in `index.ts` or `middleware.ts` (e.g., session, authorization, logging).
+  - `./src/pages/` - Application pages following file-based routing.
+    - `./src/pages/api/` - Astro API endpoints (server-side):
+      - `./src/pages/api/auth/` - Authentication endpoints (e.g., login.ts, register.ts, logout.ts, session.ts).
+      - `./src/pages/api/notes/` - API endpoints for managing notes (CRUD operations).
+      - `./src/pages/api/ai/` - AI-related endpoints (e.g., summarization, Q&A).
+  - `./src/styles/` - Global CSS styles (e.g., global.css).
+  - `./src/types/` - Global TypeScript type definitions shared across the project (e.g., DTOs, domain types).
+- `astro.config.mjs` - Main Astro configuration file.
+- `package.json` - Project dependencies and scripts.
+- `tsconfig.json` - TypeScript configuration.
+- `tailwind.config.mjs` - Tailwind CSS configuration.
+- `.env` - Local environment variables.
+- `.env.example` - Example environment variables file.
+- `.gitignore` - Specifies files and directories to ignore in Git.
+- `README.md` - Project documentation.
 
 When modifying the directory structure, always update this section.
 
