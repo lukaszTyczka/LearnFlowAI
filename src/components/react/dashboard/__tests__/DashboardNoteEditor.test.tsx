@@ -1,19 +1,40 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import DashboardNoteEditor from "../DashboardNoteEditor";
+
+// Mock fetch globally
+const mockFetch = vi.fn();
+global.fetch = mockFetch;
 
 describe("DashboardNoteEditor", () => {
   const defaultProps = {
-    noteContent: "",
+    noteContent:
+      "This is a test note that is long enough to be valid (more than 300 characters). ".repeat(
+        5
+      ),
     isSaving: false,
     isUserLoggedIn: true,
     hasCategorySelected: true,
+    categoryId: "test-category-id",
     onContentChange: vi.fn(),
     onSave: vi.fn(),
   };
 
   beforeEach(() => {
     vi.resetAllMocks();
+    // Mock console.error
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    // Setup default mock response for fetch
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: () =>
+        Promise.resolve({
+          noteId: "test-note-id",
+          summary: "Test summary",
+          keyPoints: ["Point 1", "Point 2"],
+          wordCount: 100,
+        }),
+    });
   });
 
   it("renders correctly with default props", () => {
@@ -86,13 +107,73 @@ describe("DashboardNoteEditor", () => {
     expect(defaultProps.onContentChange).toHaveBeenCalledTimes(1);
   });
 
-  it("calls onSave when save button is clicked", () => {
+  it("calls summarize endpoint and onSave when save button is clicked", async () => {
     render(<DashboardNoteEditor {...defaultProps} />);
 
     const saveButton = screen.getByRole("button", { name: /save note/i });
     fireEvent.click(saveButton);
 
-    expect(defaultProps.onSave).toHaveBeenCalledTimes(1);
+    // Verify the summarize API was called with correct parameters
+    expect(mockFetch).toHaveBeenCalledWith("/api/ai/summarize", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        text: defaultProps.noteContent,
+        maxLength: 500,
+        categoryId: defaultProps.categoryId,
+      }),
+    });
+
+    // Wait for the async operations to complete
+    await waitFor(() => {
+      expect(defaultProps.onSave).toHaveBeenCalledWith("test-note-id");
+    });
+  });
+
+  it("shows summarizing state while processing", async () => {
+    // Make the fetch take some time
+    mockFetch.mockImplementation(
+      () => new Promise((resolve) => setTimeout(resolve, 100))
+    );
+
+    render(<DashboardNoteEditor {...defaultProps} />);
+
+    const saveButton = screen.getByRole("button", { name: /save note/i });
+    fireEvent.click(saveButton);
+
+    // Check for "Summarizing..." text
+    expect(await screen.findByText("Summarizing...")).toBeInTheDocument();
+    expect(screen.getByRole("button")).toBeDisabled();
+  });
+
+  it("handles summarization failure gracefully", async () => {
+    // Mock a failed API call with proper response structure
+    mockFetch.mockResolvedValue({
+      ok: false,
+      status: 500,
+      statusText: "Internal Server Error",
+      json: () => Promise.resolve({ error: "Summarization failed" }),
+    });
+
+    render(<DashboardNoteEditor {...defaultProps} />);
+
+    const saveButton = screen.getByRole("button", { name: /save note/i });
+    fireEvent.click(saveButton);
+
+    // Should still call onSave even if summarization fails
+    await waitFor(() => {
+      expect(defaultProps.onSave).toHaveBeenCalledWith();
+    });
+
+    // Verify error was logged
+    await waitFor(() => {
+      expect(console.error).toHaveBeenCalledWith(
+        "Error saving note with summary:",
+        expect.any(Error)
+      );
+    });
   });
 
   it("displays the note content in the textarea", () => {

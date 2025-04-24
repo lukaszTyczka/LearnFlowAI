@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "../../ui/button";
 import { Textarea } from "../../ui/textarea";
 
@@ -7,8 +7,9 @@ interface DashboardNoteEditorProps {
   isSaving: boolean;
   isUserLoggedIn: boolean;
   hasCategorySelected: boolean;
+  categoryId?: string;
   onContentChange: (content: string) => void;
-  onSave: () => void;
+  onSave: (noteId?: string) => void;
 }
 
 const DashboardNoteEditor: React.FC<DashboardNoteEditorProps> = ({
@@ -16,15 +17,54 @@ const DashboardNoteEditor: React.FC<DashboardNoteEditorProps> = ({
   isSaving,
   isUserLoggedIn,
   hasCategorySelected,
+  categoryId,
   onContentChange,
   onSave,
 }) => {
+  const [isSummarizing, setIsSummarizing] = useState(false);
+  const isProcessing = isSaving || isSummarizing;
+
   const isButtonEnabled =
-    !isSaving &&
+    !isProcessing &&
     hasCategorySelected &&
     isUserLoggedIn &&
     noteContent.length >= 300 &&
     noteContent.length <= 10000;
+
+  const handleSave = async () => {
+    try {
+      setIsSummarizing(true);
+
+      // Call the summarize endpoint
+      const response = await fetch("/api/ai/summarize", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          text: noteContent,
+          maxLength: 500, // Reasonable length for a summary
+          categoryId,
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to summarize note");
+      }
+
+      const result = await response.json();
+
+      // Pass the noteId from the summarize endpoint to the parent
+      onSave(result.noteId);
+    } catch (error) {
+      console.error("Error saving note with summary:", error);
+      // Still call onSave to allow normal note saving even if summarization fails
+      onSave();
+    } finally {
+      setIsSummarizing(false);
+    }
+  };
 
   return (
     <div className="rounded-lg border bg-card">
@@ -40,22 +80,26 @@ const DashboardNoteEditor: React.FC<DashboardNoteEditorProps> = ({
           onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
             onContentChange(e.target.value)
           }
-          disabled={isSaving || !isUserLoggedIn}
+          disabled={isProcessing || !isUserLoggedIn}
         />
         <div className="text-sm text-gray-500 text-right w-[90%] mx-auto mt-1">
           300/{noteContent.length}/10000
         </div>
         <div className="mt-2 flex justify-center">
           <Button
-            onClick={onSave}
-            disabled={isSaving || !hasCategorySelected || !isUserLoggedIn}
+            onClick={handleSave}
+            disabled={!isButtonEnabled}
             className={
               isButtonEnabled
                 ? "bg-blue-600 hover:bg-blue-700 text-white"
                 : "bg-gray-300 text-gray-500"
             }
           >
-            {isSaving ? "Saving..." : "Save Note"}
+            {isSummarizing
+              ? "Summarizing..."
+              : isSaving
+              ? "Saving..."
+              : "Save Note"}
           </Button>
         </div>
       </div>
