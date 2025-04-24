@@ -40,7 +40,7 @@ export function useNotes(user: AppUser | null) {
   );
 
   const saveNote = useCallback(
-    async (categoryId: string | null) => {
+    async (categoryId: string | null): Promise<boolean> => {
       if (!user) {
         toast.error("You must be logged in to save notes");
         return false;
@@ -57,13 +57,38 @@ export function useNotes(user: AppUser | null) {
       }
 
       setIsSaving(true);
+      let summary = "";
       try {
+        const summarizeResponse = await fetch("/api/ai/summarize", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            text: noteContent,
+            maxLength: 500,
+            categoryId: categoryId,
+          }),
+        });
+
+        if (!summarizeResponse.ok) {
+          const errorData = await summarizeResponse.json();
+          console.error(
+            "Summarization failed:",
+            errorData.error || "Unknown error"
+          );
+          toast.warning("Could not generate summary, but saving note.");
+        } else {
+          const summarizeResult = await summarizeResponse.json();
+          summary = summarizeResult.summary || "";
+          console.log("Summary generated:", summary);
+        }
+
         const response = await fetch("/api/notes", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             content: noteContent,
             category_id: categoryId,
+            summary: summary,
           }),
         });
 
@@ -76,7 +101,11 @@ export function useNotes(user: AppUser | null) {
         setNoteContent("");
         return true;
       } catch (err: any) {
-        toast.error(err.message || "Failed to save note. Please try again.");
+        // Ensure a consistent error message for network or unexpected errors
+        const errorMessage =
+          err instanceof Error ? err.message : "An unknown error occurred";
+        console.error("Error during note saving process:", errorMessage, err);
+        toast.error("Failed to save note. Please try again."); // Always show generic message
         return false;
       } finally {
         setIsSaving(false);

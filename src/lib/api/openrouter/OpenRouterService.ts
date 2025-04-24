@@ -133,10 +133,14 @@ export class OpenRouterService {
   public async createStructuredChatCompletion<T>(
     params: Omit<ChatCompletionParams, "response_format">,
     zodSchema: z.ZodType<T>,
-    schemaName: string,
-    strict: boolean = true
+    schemaName: string
   ): Promise<StructuredChatCompletionResponse<T>> {
-    const jsonSchema = zodToJsonSchema(zodSchema);
+    const jsonSchema = zodToJsonSchema(zodSchema) as {
+      type?: string;
+      properties?: Record<string, any>;
+      required?: string[];
+      additionalProperties?: boolean;
+    };
 
     const body = {
       ...params,
@@ -145,30 +149,76 @@ export class OpenRouterService {
         type: "json_schema",
         json_schema: {
           name: schemaName,
-          strict: strict,
-          schema: jsonSchema,
+          strict: true,
+          schema: {
+            type: "object",
+            properties: jsonSchema.properties || {},
+            required: jsonSchema.required || [],
+            additionalProperties: false,
+          },
         },
       },
       stream: false,
     };
 
     const response = await this._request("/chat/completions", body);
-    const structuredResponse = await this._handleResponse<
-      StructuredChatCompletionResponse<T>
-    >(response);
+    console.log("response", response);
+    const rawResponse = await this._handleResponse<any>(response);
 
-    // Add the getParsedJsonPayload method to the response
+    if (!rawResponse || !Array.isArray(rawResponse.choices)) {
+      console.error("Unexpected API response structure:", rawResponse);
+      throw new OpenRouterApiError(
+        "Invalid API response structure",
+        response.status,
+        rawResponse
+      );
+    }
+
+    // Create a structured response that matches our expected format
+    const structuredResponse: StructuredChatCompletionResponse<T> = {
+      ...rawResponse,
+      choices: rawResponse.choices.map((choice: any) => ({
+        index: choice.index || 0,
+        message: {
+          role: "assistant",
+          content: null,
+          tool_calls: [
+            {
+              id: rawResponse.id || "unknown",
+              type: "function",
+              function: {
+                name: schemaName,
+                arguments:
+                  typeof choice.message?.content === "string"
+                    ? choice.message.content
+                    : JSON.stringify(choice.message?.content || {}),
+              },
+            },
+          ],
+        },
+        finish_reason: choice.finish_reason || "stop",
+      })),
+      getParsedJsonPayload: () => null, // Will be set below
+    };
+
+    // Add the getParsedJsonPayload method
     let cachedPayload: T | null = null;
     let hasAttemptedParse = false;
 
     structuredResponse.getParsedJsonPayload = () => {
       if (!hasAttemptedParse) {
         try {
-          cachedPayload = this._parseAndValidateJsonResponse(
-            structuredResponse,
-            zodSchema,
-            schemaName
-          );
+          const firstChoice = rawResponse.choices[0];
+          if (!firstChoice?.message?.content) {
+            throw new Error("No content in response");
+          }
+
+          const content =
+            typeof firstChoice.message.content === "string"
+              ? JSON.parse(firstChoice.message.content)
+              : firstChoice.message.content;
+
+          cachedPayload = zodSchema.parse(content);
         } catch (error) {
           console.error("Failed to parse JSON payload:", error);
           cachedPayload = null;
@@ -258,61 +308,5 @@ export class OpenRouterService {
     }
 
     return responseBody as T;
-  }
-
-  private _parseAndValidateJsonResponse<T>(
-    response: StructuredChatCompletionResponse<any>,
-    zodSchema: z.ZodType<T>,
-    schemaName: string
-  ): T {
-    const toolCall = response.choices?.[0]?.message?.tool_calls?.find(
-      (call) => call.type === "function" && call.function.name === schemaName
-    );
-
-    if (!toolCall?.function?.arguments) {
-      console.error(
-        "No matching tool call found in OpenRouter response for schema:",
-        schemaName,
-        response
-      );
-      throw new JsonParsingError(
-        "Structured JSON response is missing the expected tool call or arguments."
-      );
-    }
-
-    let parsedArgs: any;
-    try {
-      parsedArgs = JSON.parse(toolCall.function.arguments);
-    } catch (e) {
-      console.error(
-        "Failed to parse JSON arguments from tool call:",
-        toolCall.function.arguments,
-        e
-      );
-      throw new JsonParsingError(
-        "Failed to parse JSON arguments from structured response.",
-        toolCall.function.arguments,
-        e instanceof Error ? e : undefined
-      );
-    }
-
-    try {
-      const validatedData = zodSchema.parse(parsedArgs);
-      return validatedData;
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        console.error(
-          "Zod validation failed for structured response:",
-          error.errors
-        );
-        throw new JsonParsingError(
-          `Validation failed for structured response (schema: ${schemaName}): ${error.message}`,
-          JSON.stringify(parsedArgs),
-          error
-        );
-      }
-      console.error("Unexpected error during Zod validation:", error);
-      throw error;
-    }
   }
 }

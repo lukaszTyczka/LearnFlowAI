@@ -2,9 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import DashboardNoteEditor from "../DashboardNoteEditor";
 
-// Mock fetch globally
-const mockFetch = vi.fn();
-global.fetch = mockFetch;
+// Removed fetch mock as it's no longer called directly by the component
 
 describe("DashboardNoteEditor", () => {
   const defaultProps = {
@@ -15,26 +13,16 @@ describe("DashboardNoteEditor", () => {
     isSaving: false,
     isUserLoggedIn: true,
     hasCategorySelected: true,
-    categoryId: "test-category-id",
+    // categoryId is no longer a prop
     onContentChange: vi.fn(),
-    onSave: vi.fn(),
+    onSave: vi.fn(), // onSave no longer takes an argument
   };
 
   beforeEach(() => {
     vi.resetAllMocks();
-    // Mock console.error
+    // Keep console.error mock if needed for other tests, or remove if not
     vi.spyOn(console, "error").mockImplementation(() => {});
-    // Setup default mock response for fetch
-    mockFetch.mockResolvedValue({
-      ok: true,
-      json: () =>
-        Promise.resolve({
-          noteId: "test-note-id",
-          summary: "Test summary",
-          keyPoints: ["Point 1", "Point 2"],
-          wordCount: 100,
-        }),
-    });
+    // Remove fetch mock setup
   });
 
   it("renders correctly with default props", () => {
@@ -74,10 +62,13 @@ describe("DashboardNoteEditor", () => {
     expect(screen.getByRole("textbox")).toBeDisabled();
   });
 
-  it('shows "Saving..." text on button when saving', () => {
+  it('shows "Saving & Summarizing..." text on button when saving', () => {
     render(<DashboardNoteEditor {...defaultProps} isSaving={true} />);
 
-    expect(screen.getByRole("button", { name: /saving/i })).toBeInTheDocument();
+    // Check for the updated button text
+    expect(
+      screen.getByRole("button", { name: /saving & summarizing.../i })
+    ).toBeInTheDocument();
     expect(screen.getByRole("button")).toBeDisabled();
   });
 
@@ -107,72 +98,17 @@ describe("DashboardNoteEditor", () => {
     expect(defaultProps.onContentChange).toHaveBeenCalledTimes(1);
   });
 
-  it("calls summarize endpoint and onSave when save button is clicked", async () => {
+  // Test that onSave is called (without checking fetch)
+  it("calls onSave when save button is clicked under valid conditions", async () => {
     render(<DashboardNoteEditor {...defaultProps} />);
 
     const saveButton = screen.getByRole("button", { name: /save note/i });
     fireEvent.click(saveButton);
 
-    // Verify the summarize API was called with correct parameters
-    expect(mockFetch).toHaveBeenCalledWith("/api/ai/summarize", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        text: defaultProps.noteContent,
-        maxLength: 500,
-        categoryId: defaultProps.categoryId,
-      }),
-    });
-
-    // Wait for the async operations to complete
+    // Verify onSave was called (without arguments)
     await waitFor(() => {
-      expect(defaultProps.onSave).toHaveBeenCalledWith("test-note-id");
-    });
-  });
-
-  it("shows summarizing state while processing", async () => {
-    // Make the fetch take some time
-    mockFetch.mockImplementation(
-      () => new Promise((resolve) => setTimeout(resolve, 100))
-    );
-
-    render(<DashboardNoteEditor {...defaultProps} />);
-
-    const saveButton = screen.getByRole("button", { name: /save note/i });
-    fireEvent.click(saveButton);
-
-    // Check for "Summarizing..." text
-    expect(await screen.findByText("Summarizing...")).toBeInTheDocument();
-    expect(screen.getByRole("button")).toBeDisabled();
-  });
-
-  it("handles summarization failure gracefully", async () => {
-    // Mock a failed API call with proper response structure
-    mockFetch.mockResolvedValue({
-      ok: false,
-      status: 500,
-      statusText: "Internal Server Error",
-      json: () => Promise.resolve({ error: "Summarization failed" }),
-    });
-
-    render(<DashboardNoteEditor {...defaultProps} />);
-
-    const saveButton = screen.getByRole("button", { name: /save note/i });
-    fireEvent.click(saveButton);
-
-    // Should still call onSave even if summarization fails
-    await waitFor(() => {
-      expect(defaultProps.onSave).toHaveBeenCalledWith();
-    });
-
-    // Verify error was logged
-    await waitFor(() => {
-      expect(console.error).toHaveBeenCalledWith(
-        "Error saving note with summary:",
-        expect.any(Error)
-      );
+      expect(defaultProps.onSave).toHaveBeenCalledTimes(1);
+      expect(defaultProps.onSave).toHaveBeenCalledWith(); // Ensure it's called with no args
     });
   });
 

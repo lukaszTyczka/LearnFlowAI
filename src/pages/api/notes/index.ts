@@ -55,7 +55,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     // Validate input using Zod schema
     const validatedData = createNoteSchema.parse(body);
 
-    const { content, category_id } = validatedData;
+    const { content, category_id, summary } = validatedData;
 
     const { data: newNote, error } = await supabase
       .from("notes")
@@ -63,7 +63,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
         content,
         category_id,
         user_id: user.id,
-        // summary will be null initially
+        summary: summary || null,
       })
       .select() // Select the newly created note
       .single(); // Expecting a single row back

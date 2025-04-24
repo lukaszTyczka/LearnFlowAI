@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Button } from "../../ui/button";
 import { Textarea } from "../../ui/textarea";
 
@@ -7,9 +7,8 @@ interface DashboardNoteEditorProps {
   isSaving: boolean;
   isUserLoggedIn: boolean;
   hasCategorySelected: boolean;
-  categoryId?: string;
   onContentChange: (content: string) => void;
-  onSave: (noteId?: string) => void;
+  onSave: () => void;
 }
 
 const DashboardNoteEditor: React.FC<DashboardNoteEditorProps> = ({
@@ -17,12 +16,10 @@ const DashboardNoteEditor: React.FC<DashboardNoteEditorProps> = ({
   isSaving,
   isUserLoggedIn,
   hasCategorySelected,
-  categoryId,
   onContentChange,
   onSave,
 }) => {
-  const [isSummarizing, setIsSummarizing] = useState(false);
-  const isProcessing = isSaving || isSummarizing;
+  const isProcessing = isSaving;
 
   const isButtonEnabled =
     !isProcessing &&
@@ -31,39 +28,8 @@ const DashboardNoteEditor: React.FC<DashboardNoteEditorProps> = ({
     noteContent.length >= 300 &&
     noteContent.length <= 10000;
 
-  const handleSave = async () => {
-    try {
-      setIsSummarizing(true);
-
-      // Call the summarize endpoint
-      const response = await fetch("/api/ai/summarize", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          text: noteContent,
-          maxLength: 500, // Reasonable length for a summary
-          categoryId,
-        }),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Failed to summarize note");
-      }
-
-      const result = await response.json();
-
-      // Pass the noteId from the summarize endpoint to the parent
-      onSave(result.noteId);
-    } catch (error) {
-      console.error("Error saving note with summary:", error);
-      // Still call onSave to allow normal note saving even if summarization fails
-      onSave();
-    } finally {
-      setIsSummarizing(false);
-    }
+  const handleSave = () => {
+    onSave();
   };
 
   return (
@@ -95,11 +61,7 @@ const DashboardNoteEditor: React.FC<DashboardNoteEditorProps> = ({
                 : "bg-gray-300 text-gray-500"
             }
           >
-            {isSummarizing
-              ? "Summarizing..."
-              : isSaving
-              ? "Saving..."
-              : "Save Note"}
+            {isSaving ? "Saving & Summarizing..." : "Save Note"}
           </Button>
         </div>
       </div>
