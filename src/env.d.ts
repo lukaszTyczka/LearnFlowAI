@@ -17,6 +17,7 @@ interface ImportMetaEnv {
   // Server-side (for Astro backend)
   readonly SUPABASE_URL: string;
   readonly SUPABASE_KEY: string;
+  readonly OPENROUTER_API_KEY: string;
 }
 
 interface ImportMeta {
