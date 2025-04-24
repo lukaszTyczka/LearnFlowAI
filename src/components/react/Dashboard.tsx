@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useStore } from "@nanostores/react";
 import { $user, logout } from "../../stores/authStore";
 import type { Tables } from "../../db/database.types";
@@ -24,6 +24,7 @@ const DashboardReact: React.FC<DashboardProps> = ({
   initialCategories = [],
 }) => {
   const user = useStore($user);
+  const [hasMounted, setHasMounted] = useState(false);
 
   // Use custom hooks to manage categories and notes
   const {
@@ -49,6 +50,11 @@ const DashboardReact: React.FC<DashboardProps> = ({
   useEffect(() => {
     loadNotes(selectedCategoryId);
   }, [selectedCategoryId, loadNotes]);
+
+  // Set hasMounted to true after initial client render
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
 
   const handleLogout = async () => {
     const success = await logout();
@@ -84,7 +90,10 @@ const DashboardReact: React.FC<DashboardProps> = ({
   return (
     <div className="min-h-screen min-w-screen flex flex-col bg-background">
       {/* Top Bar */}
-      <DashboardTopBar userEmail={user?.email} onLogout={handleLogout} />
+      <DashboardTopBar
+        userEmail={hasMounted ? user?.email : undefined}
+        onLogout={handleLogout}
+      />
 
       <div className="flex flex-1 h-[calc(100vh-3.5rem)]">
         {/* Left Sidebar */}
@@ -102,7 +111,7 @@ const DashboardReact: React.FC<DashboardProps> = ({
             <DashboardNoteEditor
               noteContent={noteContent}
               isSaving={isSaving}
-              isUserLoggedIn={!!user}
+              isUserLoggedIn={hasMounted && !!user}
               hasCategorySelected={!!selectedCategoryId}
               onContentChange={handleNoteContentChange}
               onSave={handleSaveNote}
@@ -121,7 +130,7 @@ const DashboardReact: React.FC<DashboardProps> = ({
                   categories={categories}
                   selectedCategoryId={selectedCategoryId}
                   isLoading={isLoadingNotes}
-                  isUserLoggedIn={!!user}
+                  isUserLoggedIn={hasMounted && !!user}
                   onNoteSelect={handleNoteSelect}
                 />
               )}
