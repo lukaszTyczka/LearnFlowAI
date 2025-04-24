@@ -79,7 +79,6 @@ export function useNotes(user: AppUser | null) {
         } else {
           const summarizeResult = await summarizeResponse.json();
           summary = summarizeResult.summary || "";
-          console.log("Summary generated:", summary);
         }
 
         const response = await fetch("/api/notes", {

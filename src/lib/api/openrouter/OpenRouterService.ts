@@ -162,7 +162,6 @@ export class OpenRouterService {
     };
 
     const response = await this._request("/chat/completions", body);
-    console.log("response", response);
     const rawResponse = await this._handleResponse<any>(response);
 
     if (!rawResponse || !Array.isArray(rawResponse.choices)) {

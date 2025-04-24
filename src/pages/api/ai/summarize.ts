@@ -49,7 +49,6 @@ Focus on the main points and key information.`;
           { role: "user", content: text },
         ],
         temperature: 0.7,
-        max_tokens: Math.floor(maxLength / 2), // Rough estimate of tokens needed
       },
       SummaryResponseSchema,
       "generate_summary"
