@@ -1,5 +1,5 @@
 import type { APIRoute } from "astro";
-import { OpenRouterService } from "../../../lib/api/openrouter/OpenRouterService";
+import { OpenRouterService } from "../../../lib/api/openrouter/openRouter.service";
 import { z } from "zod";
 
 // Input validation schema
