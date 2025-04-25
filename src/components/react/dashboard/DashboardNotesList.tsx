@@ -1,8 +1,12 @@
 import React from "react";
 import { Card } from "../../ui/card";
 import type { Tables } from "../../../db/database.types";
+import { Loader2, AlertCircle } from "lucide-react";
 
-type Note = Tables<"notes">;
+type Note = Tables<"notes"> & {
+  summary_status: "pending" | "processing" | "completed" | "failed";
+  summary_error_message?: string | null;
+};
 
 interface DashboardNotesListProps {
   notes: Note[];
@@ -12,6 +16,46 @@ interface DashboardNotesListProps {
   isUserLoggedIn: boolean;
   onNoteSelect: (note: Note) => void;
 }
+
+const SummaryStatus: React.FC<{ note: Note }> = ({ note }) => {
+  if (
+    note.summary_status === "pending" ||
+    note.summary_status === "processing"
+  ) {
+    return (
+      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <Loader2 className="h-4 w-4 animate-spin" />
+        <span>
+          {note.summary_status === "pending"
+            ? "Waiting to generate summary..."
+            : "Generating summary..."}
+        </span>
+      </div>
+    );
+  }
+
+  if (note.summary_status === "failed") {
+    return (
+      <div
+        className="flex items-center gap-2 text-sm text-destructive"
+        title={note.summary_error_message || "Unknown error"}
+      >
+        <AlertCircle className="h-4 w-4" />
+        <span>Failed to generate summary</span>
+      </div>
+    );
+  }
+
+  if (note.summary) {
+    return (
+      <p className="mt-2 text-sm text-muted-foreground line-clamp-2">
+        {note.summary}
+      </p>
+    );
+  }
+
+  return null;
+};
 
 const DashboardNotesList: React.FC<DashboardNotesListProps> = ({
   notes,
@@ -48,11 +92,9 @@ const DashboardNotesList: React.FC<DashboardNotesListProps> = ({
                 {new Date(note.created_at).toLocaleDateString()}
               </p>
               <p className="mt-2 line-clamp-3">{note.content}</p>
-              {note.summary && (
-                <p className="mt-2 text-sm text-muted-foreground line-clamp-2">
-                  {note.summary}
-                </p>
-              )}
+              <div className="mt-2">
+                <SummaryStatus note={note} />
+              </div>
             </Card>
           ))}
         </div>

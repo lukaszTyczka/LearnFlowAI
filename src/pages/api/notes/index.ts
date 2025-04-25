@@ -55,31 +55,44 @@ export const POST: APIRoute = async ({ request, locals }) => {
     // Validate input using Zod schema
     const validatedData = createNoteSchema.parse(body);
 
-    const { content, category_id, summary } = validatedData;
+    const { content, category_id } = validatedData;
 
+    // Create note with pending summary status
     const { data: newNote, error } = await supabase
       .from("notes")
       .insert({
         content,
         category_id,
         user_id: user.id,
-        summary: summary || null,
+        summary_status: "pending",
       })
-      .select() // Select the newly created note
-      .single(); // Expecting a single row back
+      .select()
+      .single();
 
     if (error) {
       console.error("Supabase error creating note:", error);
-      // Handle potential db errors like foreign key violation
       if (error.code === "23503") {
-        // foreign key violation
         return new Response(
           JSON.stringify({ error: "Invalid category selected" }),
           { status: 400 }
         );
       }
-      throw error; // Rethrow other Supabase errors
+      throw error;
     }
+
+    // Trigger async summarization
+    fetch(
+      `${request.url.replace("/api/notes", "/api/ai/summarize")}/${newNote.id}`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: request.headers.get("Authorization") || "",
+        },
+      }
+    ).catch((error) => {
+      console.error("Failed to trigger summarization:", error);
+      // Don't wait for or fail on summarization errors
+    });
 
     return new Response(JSON.stringify({ note: newNote }), { status: 201 });
   } catch (error: any) {
