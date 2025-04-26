@@ -41,6 +41,7 @@
     "zod": "^3.24.3"
   },
   "devDependencies": {
+    "@eslint/compat": "^1.2.7",
     "@eslint/js": "^9.21.0",
     "@playwright/test": "^1.52.0",
     "@shadcn/ui": "^0.0.4",
