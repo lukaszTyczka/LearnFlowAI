@@ -96,13 +96,14 @@ export const RegisterForm: React.FC = () => {
         </CardContent>
         <CardFooter className="flex flex-col gap-4">
           {!successMessage && (
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button type="submit" variant="outline" className="w-full" disabled={isLoading}>
               {isLoading ? "Registering..." : "Register"}
             </Button>
           )}
           <Button
             type="button"
-            variant="ghost"
+            variant="outline"
+            className="w-full"
             onClick={() => (window.location.href = "/login")}
             disabled={isLoading && successMessage !== null}
           >

@@ -120,12 +120,13 @@ export const LoginForm: React.FC = () => {
           {error && <div className="text-sm text-red-500 dark:text-red-400">{error}</div>}
         </CardContent>
         <CardFooter className="flex flex-col gap-4">
-          <Button type="submit" className="w-full" disabled={isLoading}>
+          <Button type="submit" variant="outline" className="w-full" disabled={isLoading}>
             {isLoading ? "Logging in..." : "Login"}
           </Button>
           <Button
             type="button"
-            variant="ghost"
+            variant="outline"
+            className="w-full"
             onClick={() => {
               setResetMode(true);
               $authError.set(null);
@@ -137,6 +138,7 @@ export const LoginForm: React.FC = () => {
           <Button
             type="button"
             variant="outline"
+            className="w-full"
             onClick={() => (window.location.href = "/register")}
             disabled={isLoading}
           >
