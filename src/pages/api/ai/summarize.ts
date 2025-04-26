@@ -20,13 +20,10 @@ export const POST: APIRoute = async ({ request, locals }) => {
   try {
     // Check if user is authenticated
     if (!locals.user) {
-      return new Response(
-        JSON.stringify({ error: "Authentication required" }),
-        {
-          status: 401,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
+      return new Response(JSON.stringify({ error: "Authentication required" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      });
     }
 
     // Initialize OpenRouter service
@@ -112,8 +109,7 @@ Focus on the main points and key information.`;
     const status = error instanceof Error ? 500 : 400;
     return new Response(
       JSON.stringify({
-        error:
-          error instanceof Error ? error.message : "Unknown error occurred",
+        error: error instanceof Error ? error.message : "Unknown error occurred",
       }),
       {
         status,

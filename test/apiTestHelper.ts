@@ -7,17 +7,15 @@ import { expect } from "vitest";
 export class ApiTestHelper {
   private baseUrl: string;
 
-  constructor(baseUrl: string = "http://localhost:4321") {
+  constructor(baseUrl = "http://localhost:4321") {
     this.baseUrl = baseUrl;
   }
 
   /**
    * Perform a GET request to an API endpoint
    */
-  async get(endpoint: string, expectedStatus: number = 200) {
-    const response = await request(this.baseUrl)
-      .get(endpoint)
-      .set("Accept", "application/json");
+  async get(endpoint: string, expectedStatus = 200) {
+    const response = await request(this.baseUrl).get(endpoint).set("Accept", "application/json");
 
     expect(response.status).toBe(expectedStatus);
     return response;
@@ -26,7 +24,7 @@ export class ApiTestHelper {
   /**
    * Perform a POST request to an API endpoint
    */
-  async post(endpoint: string, data: any, expectedStatus: number = 200) {
+  async post(endpoint: string, data: any, expectedStatus = 200) {
     const response = await request(this.baseUrl)
       .post(endpoint)
       .send(data)
@@ -40,7 +38,7 @@ export class ApiTestHelper {
   /**
    * Perform a PUT request to an API endpoint
    */
-  async put(endpoint: string, data: any, expectedStatus: number = 200) {
+  async put(endpoint: string, data: any, expectedStatus = 200) {
     const response = await request(this.baseUrl)
       .put(endpoint)
       .send(data)
@@ -54,10 +52,8 @@ export class ApiTestHelper {
   /**
    * Perform a DELETE request to an API endpoint
    */
-  async delete(endpoint: string, expectedStatus: number = 200) {
-    const response = await request(this.baseUrl)
-      .delete(endpoint)
-      .set("Accept", "application/json");
+  async delete(endpoint: string, expectedStatus = 200) {
+    const response = await request(this.baseUrl).delete(endpoint).set("Accept", "application/json");
 
     expect(response.status).toBe(expectedStatus);
     return response;

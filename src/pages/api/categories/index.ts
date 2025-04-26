@@ -10,10 +10,10 @@ export async function GET(context: APIContext): Promise<Response> {
 
   // Basic check if supabase client is available
   if (!supabase) {
-    return new Response(
-      JSON.stringify({ error: "Supabase client not available" }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
-    );
+    return new Response(JSON.stringify({ error: "Supabase client not available" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 
   // Optional: Check if user needs to be logged in to view categories
@@ -46,10 +46,10 @@ export async function GET(context: APIContext): Promise<Response> {
     });
   } catch (error: any) {
     console.error("Error in /api/categories:", error);
-    return new Response(
-      JSON.stringify({ error: error.message || "Failed to fetch categories" }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
-    );
+    return new Response(JSON.stringify({ error: error.message || "Failed to fetch categories" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 }
 

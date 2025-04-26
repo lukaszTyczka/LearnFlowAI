@@ -1,22 +1,10 @@
 import React, { useState } from "react";
 import { useStore } from "@nanostores/react";
-import {
-  $isAuthLoading,
-  $authError,
-  login,
-  requestPasswordReset,
-} from "../../stores/authStore";
+import { $isAuthLoading, $authError, login, requestPasswordReset } from "../../stores/authStore";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "../ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../ui/card";
 
 export const LoginForm: React.FC = () => {
   const isLoading = useStore($isAuthLoading);
@@ -71,11 +59,7 @@ export const LoginForm: React.FC = () => {
                 />
               </div>
             )}
-            {error && !resetSent && (
-              <div className="text-sm text-red-500 dark:text-red-400">
-                {error}
-              </div>
-            )}
+            {error && !resetSent && <div className="text-sm text-red-500 dark:text-red-400">{error}</div>}
           </CardContent>
           <CardFooter className="flex flex-col gap-4">
             {!resetSent && (
@@ -105,9 +89,7 @@ export const LoginForm: React.FC = () => {
     <Card className="w-[400px] mx-auto mt-8">
       <CardHeader>
         <CardTitle>Login</CardTitle>
-        <CardDescription>
-          Enter your credentials to access your account
-        </CardDescription>
+        <CardDescription>Enter your credentials to access your account</CardDescription>
       </CardHeader>
       <form onSubmit={handleLoginSubmit}>
         <CardContent className="space-y-4">
@@ -135,11 +117,7 @@ export const LoginForm: React.FC = () => {
               disabled={isLoading}
             />
           </div>
-          {error && (
-            <div className="text-sm text-red-500 dark:text-red-400">
-              {error}
-            </div>
-          )}
+          {error && <div className="text-sm text-red-500 dark:text-red-400">{error}</div>}
         </CardContent>
         <CardFooter className="flex flex-col gap-4">
           <Button type="submit" className="w-full" disabled={isLoading}>

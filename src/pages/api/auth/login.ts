@@ -5,12 +5,9 @@ export const POST: APIRoute = async ({ request, cookies, locals }) => {
   const { email, password } = await request.json();
 
   if (!email || !password) {
-    return new Response(
-      JSON.stringify({ error: "Email and password are required" }),
-      {
-        status: 400,
-      }
-    );
+    return new Response(JSON.stringify({ error: "Email and password are required" }), {
+      status: 400,
+    });
   }
 
   const { data, error } = await supabase.auth.signInWithPassword({
@@ -20,12 +17,9 @@ export const POST: APIRoute = async ({ request, cookies, locals }) => {
 
   if (error) {
     console.error("Login error:", error.message);
-    return new Response(
-      JSON.stringify({ error: error.message || "Login failed" }),
-      {
-        status: error.status || 500,
-      }
-    );
+    return new Response(JSON.stringify({ error: error.message || "Login failed" }), {
+      status: error.status || 500,
+    });
   }
 
   if (data.session) {

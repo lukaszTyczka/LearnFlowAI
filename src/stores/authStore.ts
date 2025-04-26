@@ -3,7 +3,7 @@ import type { User } from "@supabase/supabase-js";
 import { toast } from "sonner";
 
 export type AppUser = Pick<User, "id" | "email"> & {
-  user_metadata?: { [key: string]: any };
+  user_metadata?: Record<string, any>;
 };
 
 export const $user = atom<AppUser | null>(null);
@@ -79,8 +79,7 @@ export async function login(email: string, password: string): Promise<boolean> {
     }
   } catch (error: any) {
     console.error("Login error:", error);
-    const errorMessage =
-      error.message || "Login failed. Please check your credentials.";
+    const errorMessage = error.message || "Login failed. Please check your credentials.";
     $authError.set(errorMessage);
     toast.error(errorMessage);
     setUser(null);
@@ -119,10 +118,7 @@ export async function logout(): Promise<boolean> {
 }
 
 // Sign up function
-export async function signUp(
-  email: string,
-  password: string
-): Promise<{ success: boolean; message: string }> {
+export async function signUp(email: string, password: string): Promise<{ success: boolean; message: string }> {
   $isAuthLoading.set(true);
   $authError.set(null);
   try {
@@ -137,15 +133,12 @@ export async function signUp(
       throw new Error(data.error || "Registration failed");
     }
 
-    const message =
-      data.message ||
-      "Registration successful! Check email if confirmation needed.";
+    const message = data.message || "Registration successful! Check email if confirmation needed.";
     toast.success(message);
     return { success: true, message };
   } catch (error: any) {
     console.error("Signup error:", error);
-    const errorMessage =
-      error.message || "Registration failed. Please try again.";
+    const errorMessage = error.message || "Registration failed. Please try again.";
     $authError.set(errorMessage);
     toast.error(errorMessage);
     return { success: false, message: errorMessage };
@@ -154,9 +147,7 @@ export async function signUp(
   }
 }
 
-export async function requestPasswordReset(
-  email: string
-): Promise<{ success: boolean; message: string }> {
+export async function requestPasswordReset(email: string): Promise<{ success: boolean; message: string }> {
   $isAuthLoading.set(true);
   $authError.set(null);
   try {
@@ -176,8 +167,7 @@ export async function requestPasswordReset(
     return { success: true, message };
   } catch (error: any) {
     console.error("Password reset request error:", error);
-    const errorMessage =
-      error.message || "Failed to send password reset email.";
+    const errorMessage = error.message || "Failed to send password reset email.";
     $authError.set(errorMessage);
     toast.error(errorMessage);
     return { success: false, message: errorMessage };

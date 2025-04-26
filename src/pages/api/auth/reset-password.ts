@@ -31,10 +31,7 @@ export const POST: APIRoute = async ({ request, locals, url }) => {
     );
   }
 
-  return new Response(
-    JSON.stringify({ message: "Password reset email sent successfully." }),
-    {
-      status: 200,
-    }
-  );
+  return new Response(JSON.stringify({ message: "Password reset email sent successfully." }), {
+    status: 200,
+  });
 };

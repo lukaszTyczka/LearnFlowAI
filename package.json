@@ -7,6 +7,7 @@
     "dev": "astro dev",
     "build": "astro build",
     "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
     "preview": "astro preview",
     "test": "vitest run",
     "test:watch": "vitest",

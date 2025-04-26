@@ -44,21 +44,13 @@ export function useNotes(user: AppUser | null) {
             >
           ) => {
             const updatedNote = payload.new as Note;
-            setNotes((currentNotes) =>
-              currentNotes.map((note) =>
-                note.id === updatedNote.id ? updatedNote : note
-              )
-            );
+            setNotes((currentNotes) => currentNotes.map((note) => (note.id === updatedNote.id ? updatedNote : note)));
 
             // Show appropriate toast based on summary status
             if (updatedNote.summary_status === "completed") {
               toast.success("Note summary generated successfully");
             } else if (updatedNote.summary_status === "failed") {
-              toast.error(
-                `Summary generation failed: ${
-                  updatedNote.summary_error_message || "Unknown error"
-                }`
-              );
+              toast.error(`Summary generation failed: ${updatedNote.summary_error_message || "Unknown error"}`);
             }
           }
         )
@@ -151,9 +143,7 @@ export function useNotes(user: AppUser | null) {
           const errorData = await summarizeResponse.json();
           console.error("Summarization failed:", errorData);
           // Note: We don't throw here because the note was saved successfully
-          toast.warning(
-            "Note saved, but summary generation failed. You can retry later."
-          );
+          toast.warning("Note saved, but summary generation failed. You can retry later.");
           return true;
         }
 
@@ -161,8 +151,7 @@ export function useNotes(user: AppUser | null) {
         setNoteContent("");
         return true;
       } catch (err: any) {
-        const errorMessage =
-          err instanceof Error ? err.message : "An unknown error occurred";
+        const errorMessage = err instanceof Error ? err.message : "An unknown error occurred";
         console.error("Error during note saving process:", errorMessage, err);
         toast.error("Failed to save note. Please try again.");
         return false;

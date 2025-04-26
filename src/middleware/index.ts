@@ -8,10 +8,7 @@ const protectedPaths = ["/app"];
 const publicOnlyPaths = ["/login", "/register"];
 
 // Helper function to set auth cookies
-function setAuthCookies(
-  context: APIContext,
-  session: { access_token: string; refresh_token: string }
-) {
+function setAuthCookies(context: APIContext, session: { access_token: string; refresh_token: string }) {
   context.cookies.set("sb-access-token", session.access_token, {
     path: "/",
     maxAge: 60 * 60 * 24 * 7, // Example: 7 days
@@ -40,28 +37,23 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   if (accessToken && refreshToken) {
     // Set the session for the client to use
-    const { data, error: sessionSetError } =
-      await supabaseClient.auth.setSession({
-        access_token: accessToken,
-        refresh_token: refreshToken,
-      });
+    const { data, error: sessionSetError } = await supabaseClient.auth.setSession({
+      access_token: accessToken,
+      refresh_token: refreshToken,
+    });
 
     if (sessionSetError) {
       console.error("Error setting session:", sessionSetError.message);
       sessionError = sessionSetError;
     } else if (data?.session) {
       user = data.user;
-      if (
-        data.session.access_token !== accessToken ||
-        data.session.refresh_token !== refreshToken
-      ) {
+      if (data.session.access_token !== accessToken || data.session.refresh_token !== refreshToken) {
         setAuthCookies(context, data.session);
       }
     } else {
-      const { data: refreshData, error: refreshError } =
-        await supabaseClient.auth.refreshSession({
-          refresh_token: refreshToken,
-        });
+      const { data: refreshData, error: refreshError } = await supabaseClient.auth.refreshSession({
+        refresh_token: refreshToken,
+      });
 
       if (refreshError) {
         console.error("Error refreshing session:", refreshError.message);
@@ -89,17 +81,13 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   // If user is not logged in and trying to access a protected path
   if (!user && protectedPaths.some((path) => currentPath.startsWith(path))) {
-    console.log(
-      `Redirecting unauthenticated user from ${currentPath} to /login`
-    );
+    console.log(`Redirecting unauthenticated user from ${currentPath} to /login`);
     return context.redirect("/login"); // Redirect to login page
   }
 
   // If user is logged in and trying to access a public-only path
   if (user && publicOnlyPaths.some((path) => currentPath.startsWith(path))) {
-    console.log(
-      `Redirecting authenticated user from ${currentPath} to /app/dashboard`
-    );
+    console.log(`Redirecting authenticated user from ${currentPath} to /app/dashboard`);
     return context.redirect("/app/dashboard"); // Redirect to the actual dashboard page
   }
 

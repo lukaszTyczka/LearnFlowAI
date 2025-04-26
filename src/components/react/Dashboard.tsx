@@ -20,9 +20,7 @@ interface DashboardProps {
   initialCategories?: Category[];
 }
 
-const DashboardReact: React.FC<DashboardProps> = ({
-  initialCategories = [],
-}) => {
+const DashboardReact: React.FC<DashboardProps> = ({ initialCategories = [] }) => {
   const user = useStore($user);
   const [hasMounted, setHasMounted] = useState(false);
 
@@ -90,10 +88,7 @@ const DashboardReact: React.FC<DashboardProps> = ({
   return (
     <div className="min-h-screen min-w-screen flex flex-col bg-background">
       {/* Top Bar */}
-      <DashboardTopBar
-        userEmail={hasMounted ? user?.email : undefined}
-        onLogout={handleLogout}
-      />
+      <DashboardTopBar userEmail={hasMounted ? user?.email : undefined} onLogout={handleLogout} />
 
       <div className="flex flex-1 h-[calc(100vh-3.5rem)]">
         {/* Left Sidebar */}
@@ -120,10 +115,7 @@ const DashboardReact: React.FC<DashboardProps> = ({
             {/* Notes List / Note Details */}
             <div className="flex-1">
               {selectedNote ? (
-                <DashboardNoteDetail
-                  note={selectedNote}
-                  onBack={handleBackToNotesList}
-                />
+                <DashboardNoteDetail note={selectedNote} onBack={handleBackToNotesList} />
               ) : (
                 <DashboardNotesList
                   notes={notes}

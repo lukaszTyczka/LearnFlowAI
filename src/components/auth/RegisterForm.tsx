@@ -4,14 +4,7 @@ import { $isAuthLoading, $authError, signUp } from "../../stores/authStore";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "../ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../ui/card";
 
 export const RegisterForm: React.FC = () => {
   const isLoading = useStore($isAuthLoading);
@@ -57,11 +50,7 @@ export const RegisterForm: React.FC = () => {
       </CardHeader>
       <form onSubmit={handleSubmit}>
         <CardContent className="space-y-4">
-          {successMessage && (
-            <div className="text-sm text-green-600 dark:text-green-400">
-              {successMessage}
-            </div>
-          )}
+          {successMessage && <div className="text-sm text-green-600 dark:text-green-400">{successMessage}</div>}
           {!successMessage && (
             <>
               <div className="space-y-2">
@@ -100,16 +89,8 @@ export const RegisterForm: React.FC = () => {
                   disabled={isLoading}
                 />
               </div>
-              {passwordError && (
-                <div className="text-sm text-red-500 dark:text-red-400">
-                  {passwordError}
-                </div>
-              )}
-              {error && (
-                <div className="text-sm text-red-500 dark:text-red-400">
-                  {error}
-                </div>
-              )}
+              {passwordError && <div className="text-sm text-red-500 dark:text-red-400">{passwordError}</div>}
+              {error && <div className="text-sm text-red-500 dark:text-red-400">{error}</div>}
             </>
           )}
         </CardContent>

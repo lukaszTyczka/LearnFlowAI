@@ -6,10 +6,10 @@ export async function GET(context: APIContext): Promise<Response> {
   const { id } = params;
 
   if (!supabase) {
-    return new Response(
-      JSON.stringify({ error: "Supabase client not available" }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
-    );
+    return new Response(JSON.stringify({ error: "Supabase client not available" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 
   if (!id) {
@@ -50,9 +50,9 @@ export async function GET(context: APIContext): Promise<Response> {
     });
   } catch (error: any) {
     console.error(`Error in /api/categories/${id}:`, error);
-    return new Response(
-      JSON.stringify({ error: error.message || "Failed to fetch category" }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
-    );
+    return new Response(JSON.stringify({ error: error.message || "Failed to fetch category" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 }

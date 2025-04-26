@@ -3,16 +3,12 @@ import type { APIRoute } from "astro";
 export const POST: APIRoute = async ({ request, locals }) => {
   const supabase = locals.supabase;
   // TODO: Add proper validation (e.g., using Zod)
-  const { email, password /* other registration data */ } =
-    await request.json();
+  const { email, password /* other registration data */ } = await request.json();
 
   if (!email || !password) {
-    return new Response(
-      JSON.stringify({ error: "Email and password are required" }),
-      {
-        status: 400,
-      }
-    );
+    return new Response(JSON.stringify({ error: "Email and password are required" }), {
+      status: 400,
+    });
   }
 
   // TODO: Add password strength checks
@@ -25,12 +21,9 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
   if (error) {
     console.error("Registration error:", error.message);
-    return new Response(
-      JSON.stringify({ error: error.message || "Registration failed" }),
-      {
-        status: error.status || 500,
-      }
-    );
+    return new Response(JSON.stringify({ error: error.message || "Registration failed" }), {
+      status: error.status || 500,
+    });
   }
 
   // Depending on Supabase settings (email confirmation required?),
@@ -42,8 +35,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
   // For now, assume confirmation is needed or handled separately
   return new Response(
     JSON.stringify({
-      message:
-        "Registration successful. Please check your email for confirmation.",
+      message: "Registration successful. Please check your email for confirmation.",
       user: data.user,
     }),
     { status: 201 }

@@ -72,24 +72,18 @@ export const POST: APIRoute = async ({ request, locals }) => {
     if (error) {
       console.error("Supabase error creating note:", error);
       if (error.code === "23503") {
-        return new Response(
-          JSON.stringify({ error: "Invalid category selected" }),
-          { status: 400 }
-        );
+        return new Response(JSON.stringify({ error: "Invalid category selected" }), { status: 400 });
       }
       throw error;
     }
 
     // Trigger async summarization
-    fetch(
-      `${request.url.replace("/api/notes", "/api/ai/summarize")}/${newNote.id}`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: request.headers.get("Authorization") || "",
-        },
-      }
-    ).catch((error) => {
+    fetch(`${request.url.replace("/api/notes", "/api/ai/summarize")}/${newNote.id}`, {
+      method: "POST",
+      headers: {
+        Authorization: request.headers.get("Authorization") || "",
+      },
+    }).catch((error) => {
       console.error("Failed to trigger summarization:", error);
       // Don't wait for or fail on summarization errors
     });

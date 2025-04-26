@@ -13,7 +13,7 @@ const SummaryResponseSchema = z.object({
 class SummarizeError extends Error {
   constructor(
     message: string,
-    public status: number = 500,
+    public status = 500,
     public userMessage?: string
   ) {
     super(message);
@@ -33,11 +33,7 @@ export const POST: APIRoute = async ({ params, locals }) => {
   try {
     // Check if user is authenticated
     if (!user) {
-      throw new SummarizeError(
-        "Authentication required",
-        401,
-        "Please log in to generate summaries"
-      );
+      throw new SummarizeError("Authentication required", 401, "Please log in to generate summaries");
     }
 
     // Check if note is already being processed
@@ -172,9 +168,7 @@ Focus on the main points and key information.`;
     } catch (aiError) {
       // Handle AI-specific errors
       throw new SummarizeError(
-        `AI summarization failed: ${
-          aiError instanceof Error ? aiError.message : "Unknown error"
-        }`,
+        `AI summarization failed: ${aiError instanceof Error ? aiError.message : "Unknown error"}`,
         500,
         "Failed to generate summary. The AI model encountered an error."
       );
@@ -197,8 +191,7 @@ Focus on the main points and key information.`;
         .from("notes")
         .update({
           summary_status: "failed" as const,
-          summary_error_message:
-            summarizeError.userMessage || summarizeError.message,
+          summary_error_message: summarizeError.userMessage || summarizeError.message,
           updated_at: new Date().toISOString(),
         })
         .eq("id", noteId)

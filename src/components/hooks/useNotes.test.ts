@@ -66,9 +66,7 @@ describe("useNotes hook - saveNote method", () => {
       expect(success).toBe(false);
     });
 
-    expect(toast.error).toHaveBeenCalledWith(
-      "You must be logged in to save notes"
-    );
+    expect(toast.error).toHaveBeenCalledWith("You must be logged in to save notes");
     expect(mockFetch).not.toHaveBeenCalled();
   });
 
@@ -97,9 +95,7 @@ describe("useNotes hook - saveNote method", () => {
       expect(success).toBe(false);
     });
 
-    expect(toast.error).toHaveBeenCalledWith(
-      "Note must be between 300 and 10000 characters"
-    );
+    expect(toast.error).toHaveBeenCalledWith("Note must be between 300 and 10000 characters");
     expect(mockFetch).not.toHaveBeenCalled();
   });
 
@@ -116,9 +112,7 @@ describe("useNotes hook - saveNote method", () => {
       expect(success).toBe(false);
     });
 
-    expect(toast.error).toHaveBeenCalledWith(
-      "Note must be between 300 and 10000 characters"
-    );
+    expect(toast.error).toHaveBeenCalledWith("Note must be between 300 and 10000 characters");
     expect(mockFetch).not.toHaveBeenCalled();
   });
 
@@ -164,19 +158,13 @@ describe("useNotes hook - saveNote method", () => {
     });
 
     // Verify summarize fetch call
-    expect(mockFetch).toHaveBeenNthCalledWith(
-      2,
-      `/api/ai/summarize/${mockNote.id}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+    expect(mockFetch).toHaveBeenNthCalledWith(2, `/api/ai/summarize/${mockNote.id}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+    });
 
     // Verify toast success was called
-    expect(toast.success).toHaveBeenCalledWith(
-      "Note saved successfully. Generating summary..."
-    );
+    expect(toast.success).toHaveBeenCalledWith("Note saved successfully. Generating summary...");
     expect(toast.warning).not.toHaveBeenCalled();
     expect(toast.error).not.toHaveBeenCalled();
 
@@ -204,9 +192,7 @@ describe("useNotes hook - saveNote method", () => {
       expect(success).toBe(false);
     });
 
-    expect(toast.error).toHaveBeenCalledWith(
-      "Failed to save note. Please try again."
-    );
+    expect(toast.error).toHaveBeenCalledWith("Failed to save note. Please try again.");
     expect(mockFetch).toHaveBeenCalledTimes(1);
   });
 
@@ -234,9 +220,7 @@ describe("useNotes hook - saveNote method", () => {
       expect(success).toBe(true);
     });
 
-    expect(toast.warning).toHaveBeenCalledWith(
-      "Note saved, but summary generation failed. You can retry later."
-    );
+    expect(toast.warning).toHaveBeenCalledWith("Note saved, but summary generation failed. You can retry later.");
     expect(mockFetch).toHaveBeenCalledTimes(2);
   });
 
@@ -256,9 +240,7 @@ describe("useNotes hook - saveNote method", () => {
       expect(success).toBe(false);
     });
 
-    expect(toast.error).toHaveBeenCalledWith(
-      "Failed to save note. Please try again."
-    );
+    expect(toast.error).toHaveBeenCalledWith("Failed to save note. Please try again.");
     expect(mockFetch).toHaveBeenCalledTimes(1);
   });
 
@@ -283,9 +265,7 @@ describe("useNotes hook - saveNote method", () => {
         });
       });
 
-      expect(toast.success).toHaveBeenCalledWith(
-        "Note summary generated successfully"
-      );
+      expect(toast.success).toHaveBeenCalledWith("Note summary generated successfully");
     });
 
     it("should cleanup realtime subscription on unmount", () => {

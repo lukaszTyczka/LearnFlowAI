@@ -5,12 +5,9 @@ export const GET: APIRoute = async ({ locals }) => {
   const user = locals.user;
 
   if (!user) {
-    return new Response(
-      JSON.stringify({ user: null, error: "Not authenticated" }),
-      {
-        status: 401,
-      }
-    );
+    return new Response(JSON.stringify({ user: null, error: "Not authenticated" }), {
+      status: 401,
+    });
   }
 
   // Return relevant user information (avoid sending sensitive data)

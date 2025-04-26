@@ -5,38 +5,40 @@
 const features = [
   {
     name: "AI-Powered Summaries",
-    description:
-      "Transform lengthy notes into concise, easy-to-understand summaries using advanced AI technology.",
+    description: "Transform lengthy notes into concise, easy-to-understand summaries using advanced AI technology.",
   },
   {
     name: "Interactive Learning",
-    description:
-      "Generate custom quizzes and flashcards to test your knowledge and reinforce learning.",
+    description: "Generate custom quizzes and flashcards to test your knowledge and reinforce learning.",
   },
   {
     name: "Smart Organization",
-    description:
-      "Automatically categorize and organize your learning materials for efficient review and reference.",
+    description: "Automatically categorize and organize your learning materials for efficient review and reference.",
   },
 ];
 ---
+
 <div class="min-h-screen bg-gradient-to-b from-gray-50 to-white">
   {/* Hero Section */}
   <div class="container mx-auto px-4 py-16">
     <div class="text-center">
-      <h1 class="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
-        LearnFlow AI
-      </h1>
+      <h1 class="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">LearnFlow AI</h1>
       <p class="mt-6 text-lg leading-8 text-gray-600">
-        Your personal AI-powered learning assistant. Transform your notes
-        into structured knowledge and interactive quizzes.
+        Your personal AI-powered learning assistant. Transform your notes into structured knowledge and interactive
+        quizzes.
       </p>
       <div class="mt-10 flex items-center justify-center gap-x-6">
-        <a href="/login" class="rounded-md bg-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+        <a
+          href="/login"
+          class="rounded-md bg-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+        >
           Get Started
         </a>
         {/* Assuming /about page does not exist yet, link can be removed or point elsewhere */}
-        <a href="#features" class="rounded-md bg-white px-6 py-3 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+        <a
+          href="#features"
+          class="rounded-md bg-white px-6 py-3 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+        >
           Learn More
         </a>
       </div>
@@ -47,29 +49,32 @@ const features = [
   <div id="features" class="py-24 sm:py-32">
     <div class="mx-auto max-w-7xl px-6 lg:px-8">
       <div class="mx-auto max-w-2xl lg:text-center">
-        <h2 class="text-base font-semibold leading-7 text-indigo-600">
-          Learn Faster
-        </h2>
+        <h2 class="text-base font-semibold leading-7 text-indigo-600">Learn Faster</h2>
         <p class="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
           Everything you need to accelerate your learning
         </p>
       </div>
       <div class="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
         <dl class="grid max-w-xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none lg:grid-cols-3">
-          {features.map((feature) => (
-            <div class="flex flex-col">
-              <dt class="flex items-center gap-x-3 text-base font-semibold leading-7 text-gray-900">
-                {/* Icon placeholder - could add SVGs later */}
-                <div class="h-6 w-6 flex-none text-indigo-600" aria-hidden="true"> {/* Placeholder for icon */} </div>
-                {feature.name}
-              </dt>
-              <dd class="mt-4 flex flex-auto flex-col text-base leading-7 text-gray-600">
-                <p class="flex-auto">{feature.description}</p>
-              </dd>
-            </div>
-          ))}
+          {
+            features.map((feature) => (
+              <div class="flex flex-col">
+                <dt class="flex items-center gap-x-3 text-base font-semibold leading-7 text-gray-900">
+                  {/* Icon placeholder - could add SVGs later */}
+                  <div class="h-6 w-6 flex-none text-indigo-600" aria-hidden="true">
+                    {" "}
+                    {/* Placeholder for icon */}{" "}
+                  </div>
+                  {feature.name}
+                </dt>
+                <dd class="mt-4 flex flex-auto flex-col text-base leading-7 text-gray-600">
+                  <p class="flex-auto">{feature.description}</p>
+                </dd>
+              </div>
+            ))
+          }
         </dl>
       </div>
     </div>
   </div>
-</div> 
+</div>

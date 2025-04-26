@@ -6,10 +6,7 @@ import DashboardNoteEditor from "../DashboardNoteEditor";
 
 describe("DashboardNoteEditor", () => {
   const defaultProps = {
-    noteContent:
-      "This is a test note that is long enough to be valid (more than 300 characters). ".repeat(
-        5
-      ),
+    noteContent: "This is a test note that is long enough to be valid (more than 300 characters). ".repeat(5),
     isSaving: false,
     isUserLoggedIn: true,
     hasCategorySelected: true,
@@ -29,25 +26,19 @@ describe("DashboardNoteEditor", () => {
     render(<DashboardNoteEditor {...defaultProps} />);
 
     expect(screen.getByRole("textbox")).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: /save note/i })
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /save note/i })).toBeInTheDocument();
   });
 
   it("displays correct placeholder when user is logged in", () => {
     render(<DashboardNoteEditor {...defaultProps} isUserLoggedIn={true} />);
 
-    expect(
-      screen.getByPlaceholderText("Enter your note here... (300-10000 chars)")
-    ).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("Enter your note here... (300-10000 chars)")).toBeInTheDocument();
   });
 
   it("displays login message when user is not logged in", () => {
     render(<DashboardNoteEditor {...defaultProps} isUserLoggedIn={false} />);
 
-    expect(
-      screen.getByPlaceholderText("Please log in to create notes")
-    ).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("Please log in to create notes")).toBeInTheDocument();
   });
 
   it("disables textarea when saving", () => {
@@ -66,16 +57,12 @@ describe("DashboardNoteEditor", () => {
     render(<DashboardNoteEditor {...defaultProps} isSaving={true} />);
 
     // Check for the updated button text
-    expect(
-      screen.getByRole("button", { name: /saving & summarizing.../i })
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /saving & summarizing.../i })).toBeInTheDocument();
     expect(screen.getByRole("button")).toBeDisabled();
   });
 
   it("disables save button when no category is selected", () => {
-    render(
-      <DashboardNoteEditor {...defaultProps} hasCategorySelected={false} />
-    );
+    render(<DashboardNoteEditor {...defaultProps} hasCategorySelected={false} />);
 
     expect(screen.getByRole("button")).toBeDisabled();
   });
@@ -92,9 +79,7 @@ describe("DashboardNoteEditor", () => {
     const textarea = screen.getByRole("textbox");
     fireEvent.change(textarea, { target: { value: "New note content" } });
 
-    expect(defaultProps.onContentChange).toHaveBeenCalledWith(
-      "New note content"
-    );
+    expect(defaultProps.onContentChange).toHaveBeenCalledWith("New note content");
     expect(defaultProps.onContentChange).toHaveBeenCalledTimes(1);
   });
 

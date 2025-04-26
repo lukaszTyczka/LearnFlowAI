@@ -6,12 +6,8 @@ type Category = Tables<"categories">;
 
 export function useCategories(initialCategories: Category[] = []) {
   const [categories, setCategories] = useState<Category[]>(initialCategories);
-  const [isLoading, setIsLoading] = useState<boolean>(
-    !initialCategories.length
-  );
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
-    null
-  );
+  const [isLoading, setIsLoading] = useState<boolean>(!initialCategories.length);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
 
   const loadCategories = useCallback(async () => {
     if (categories.length > 0) return;

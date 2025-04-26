@@ -32,11 +32,11 @@ export interface ChatCompletionParams {
 export interface ChatCompletionResponse {
   id: string;
   model: string;
-  choices: Array<{
+  choices: {
     index: number;
     message: ChatMessage;
     finish_reason: string;
-  }>;
+  }[];
   usage: {
     prompt_tokens: number;
     completion_tokens: number;
@@ -44,37 +44,43 @@ export interface ChatCompletionResponse {
   };
 }
 
-export interface StructuredChatCompletionResponse<T>
-  extends Omit<ChatCompletionResponse, "choices"> {
-  choices: Array<{
+export interface StructuredChatCompletionResponse<T> extends Omit<ChatCompletionResponse, "choices"> {
+  choices: {
     index: number;
     message: {
       role: "assistant";
       content: null;
-      tool_calls: Array<{
+      tool_calls: {
         id: string;
         type: "function";
         function: {
           name: string;
           arguments: string;
         };
-      }>;
+      }[];
     };
     finish_reason: string;
-  }>;
+  }[];
   getParsedJsonPayload: () => T | null;
 }
 
 // Custom Error Classes
 export class OpenRouterApiError extends Error {
-  constructor(message: string, public status?: number, public details?: any) {
+  constructor(
+    message: string,
+    public status?: number,
+    public details?: any
+  ) {
     super(message);
     this.name = "OpenRouterApiError";
   }
 }
 
 export class NetworkError extends Error {
-  constructor(message: string, public cause?: Error) {
+  constructor(
+    message: string,
+    public cause?: Error
+  ) {
     super(message);
     this.name = "NetworkError";
   }
@@ -106,9 +112,7 @@ export class OpenRouterService {
   ) {
     this.apiKey = config.apiKey || import.meta.env.OPENROUTER_API_KEY;
     if (!this.apiKey) {
-      console.error(
-        "OpenRouter API Key is missing. Please set OPENROUTER_API_KEY environment variable."
-      );
+      console.error("OpenRouter API Key is missing. Please set OPENROUTER_API_KEY environment variable.");
       throw new Error("OpenRouter API Key is not configured.");
     }
 
@@ -116,9 +120,7 @@ export class OpenRouterService {
     this.baseURL = config.baseURL || "https://openrouter.ai/api/v1";
   }
 
-  public async createChatCompletion(
-    params: ChatCompletionParams
-  ): Promise<ChatCompletionResponse> {
+  public async createChatCompletion(params: ChatCompletionParams): Promise<ChatCompletionResponse> {
     const body = {
       ...params,
       model: params.model || this.defaultModel,
@@ -166,11 +168,7 @@ export class OpenRouterService {
 
     if (!rawResponse || !Array.isArray(rawResponse.choices)) {
       console.error("Unexpected API response structure:", rawResponse);
-      throw new OpenRouterApiError(
-        "Invalid API response structure",
-        response.status,
-        rawResponse
-      );
+      throw new OpenRouterApiError("Invalid API response structure", response.status, rawResponse);
     }
 
     // Create a structured response that matches our expected format
@@ -230,10 +228,7 @@ export class OpenRouterService {
     return structuredResponse;
   }
 
-  private async _request(
-    endpoint: string,
-    body: Record<string, any>
-  ): Promise<Response> {
+  private async _request(endpoint: string, body: Record<string, any>): Promise<Response> {
     const url = `${this.baseURL}${endpoint}`;
     const headers = {
       Authorization: `Bearer ${this.apiKey}`,
@@ -250,14 +245,8 @@ export class OpenRouterService {
       });
       return response;
     } catch (error: any) {
-      console.error(
-        `Network error calling OpenRouter API: ${error.message}`,
-        error
-      );
-      throw new NetworkError(
-        `Failed to connect to OpenRouter API: ${error.message}`,
-        error
-      );
+      console.error(`Network error calling OpenRouter API: ${error.message}`, error);
+      throw new NetworkError(`Failed to connect to OpenRouter API: ${error.message}`, error);
     }
   }
 
@@ -268,21 +257,15 @@ export class OpenRouterService {
     } catch (e) {
       try {
         const textBody = await response.text();
-        console.error(
-          `Failed to parse JSON response from OpenRouter. Status: ${response.status}. Body: ${textBody}`
-        );
+        console.error(`Failed to parse JSON response from OpenRouter. Status: ${response.status}. Body: ${textBody}`);
         throw new JsonParsingError(
           `Failed to parse JSON response. Status: ${response.status}`,
           textBody,
           e instanceof Error ? e : undefined
         );
       } catch (textError) {
-        console.error(
-          `Failed to parse JSON and text response from OpenRouter. Status: ${response.status}.`
-        );
-        throw new Error(
-          `Received non-JSON, non-text response from OpenRouter. Status: ${response.status}`
-        );
+        console.error(`Failed to parse JSON and text response from OpenRouter. Status: ${response.status}.`);
+        throw new Error(`Received non-JSON, non-text response from OpenRouter. Status: ${response.status}`);
       }
     }
 
@@ -295,9 +278,7 @@ export class OpenRouterService {
       if (response.status === 429) {
         const retryAfter = response.headers.get("Retry-After");
         throw new OpenRouterApiError(
-          `Rate limit exceeded. Retry after ${
-            retryAfter || "unknown"
-          } seconds.`,
+          `Rate limit exceeded. Retry after ${retryAfter || "unknown"} seconds.`,
           response.status,
           { ...errorDetails, retryAfter }
         );
