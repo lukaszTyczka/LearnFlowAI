@@ -45,7 +45,7 @@ const DashboardNoteEditor: React.FC<DashboardNoteEditorProps> = ({
             disabled={!isButtonEnabled}
             className={isButtonEnabled ? "bg-blue-600 hover:bg-blue-700 text-white" : "bg-gray-300 text-gray-500"}
           >
-            {isSaving ? "Saving & Summarizing..." : "Save Note"}
+            {isSaving ? "Saving..." : "Save Note"}
           </Button>
         </div>
       </div>
