@@ -11,7 +11,7 @@ declare global {
       toBeEnabled(): void;
       toBeChecked(): void;
       toHaveValue(value: string | string[] | number | null): void;
-      toHaveStyle(css: Record<string, any>): void;
+      toHaveStyle(css: Record<string, string>): void;
       toHaveFocus(): void;
       toContainElement(element: HTMLElement | SVGElement | null): void;
       toContainHTML(htmlText: string): void;

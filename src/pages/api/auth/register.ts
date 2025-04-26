@@ -20,7 +20,6 @@ export const POST: APIRoute = async ({ request, locals }) => {
   });
 
   if (error) {
-    console.error("Registration error:", error.message);
     return new Response(JSON.stringify({ error: error.message || "Registration failed" }), {
       status: error.status || 500,
     });

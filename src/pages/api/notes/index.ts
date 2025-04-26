@@ -33,8 +33,7 @@ export const GET: APIRoute = async ({ url, locals }) => {
     return new Response(JSON.stringify({ notes: notes || [] }), {
       status: 200,
     });
-  } catch (error: any) {
-    console.error("Error fetching notes:", error.message);
+  } catch {
     return new Response(JSON.stringify({ error: "Failed to fetch notes" }), {
       status: 500,
     });
@@ -70,7 +69,6 @@ export const POST: APIRoute = async ({ request, locals }) => {
       .single();
 
     if (error) {
-      console.error("Supabase error creating note:", error);
       if (error.code === "23503") {
         return new Response(JSON.stringify({ error: "Invalid category selected" }), { status: 400 });
       }
@@ -83,15 +81,11 @@ export const POST: APIRoute = async ({ request, locals }) => {
       headers: {
         Authorization: request.headers.get("Authorization") || "",
       },
-    }).catch((error) => {
-      console.error("Failed to trigger summarization:", error);
-      // Don't wait for or fail on summarization errors
-    });
+    }).catch(/* It is handled in the summarize endpoint */);
 
     return new Response(JSON.stringify({ note: newNote }), { status: 201 });
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (error instanceof ZodError) {
-      console.error("Validation error creating note:", error.errors);
       return new Response(
         JSON.stringify({
           error: "Invalid input data",
@@ -102,7 +96,6 @@ export const POST: APIRoute = async ({ request, locals }) => {
         }
       );
     }
-    console.error("Error creating note:", error.message);
     return new Response(JSON.stringify({ error: "Failed to create note" }), {
       status: 500,
     });

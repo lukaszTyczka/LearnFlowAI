@@ -3,7 +3,7 @@ import type { User } from "@supabase/supabase-js";
 import { toast } from "sonner";
 
 export type AppUser = Pick<User, "id" | "email"> & {
-  user_metadata?: Record<string, any>;
+  user_metadata?: Record<string, unknown>;
 };
 
 export const $user = atom<AppUser | null>(null);
@@ -37,9 +37,12 @@ export async function fetchInitialUser() {
     } else {
       setUser(data.user ?? null);
     }
-  } catch (error: any) {
-    console.error("Error fetching initial user session:", error);
-    $authError.set(error.message || "Failed to fetch session");
+  } catch (error: unknown) {
+    let errorMessage = "Failed to fetch session";
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+    $authError.set(errorMessage);
     setUser(null);
   } finally {
     $isAuthLoading.set(false);
@@ -77,9 +80,11 @@ export async function login(email: string, password: string): Promise<boolean> {
         throw new Error("Login succeeded but failed to retrieve user session.");
       }
     }
-  } catch (error: any) {
-    console.error("Login error:", error);
-    const errorMessage = error.message || "Login failed. Please check your credentials.";
+  } catch (error: unknown) {
+    let errorMessage = "Login failed. Please check your credentials.";
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
     $authError.set(errorMessage);
     toast.error(errorMessage);
     setUser(null);
@@ -97,7 +102,6 @@ export async function logout(): Promise<boolean> {
     const response = await fetch("/api/auth/logout", { method: "POST" }); // Use API endpoint
 
     if (!response.ok) {
-      console.error("Logout API call failed, status:", response.status);
       const data = await response.json().catch(() => ({}));
       throw new Error(data.error || "Logout failed on server");
     }
@@ -105,9 +109,11 @@ export async function logout(): Promise<boolean> {
     setUser(null);
     toast.success("Logged out successfully!");
     return true;
-  } catch (error: any) {
-    console.error("Logout error:", error);
-    const errorMessage = error.message || "Logout failed.";
+  } catch (error: unknown) {
+    let errorMessage = "Logout failed.";
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
     $authError.set(errorMessage);
     toast.error(errorMessage);
     setUser(null);
@@ -136,9 +142,11 @@ export async function signUp(email: string, password: string): Promise<{ success
     const message = data.message || "Registration successful! Check email if confirmation needed.";
     toast.success(message);
     return { success: true, message };
-  } catch (error: any) {
-    console.error("Signup error:", error);
-    const errorMessage = error.message || "Registration failed. Please try again.";
+  } catch (error: unknown) {
+    let errorMessage = "Registration failed. Please try again.";
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
     $authError.set(errorMessage);
     toast.error(errorMessage);
     return { success: false, message: errorMessage };
@@ -165,9 +173,11 @@ export async function requestPasswordReset(email: string): Promise<{ success: bo
     const message = data.message || "Password reset instructions sent.";
     toast.success(message);
     return { success: true, message };
-  } catch (error: any) {
-    console.error("Password reset request error:", error);
-    const errorMessage = error.message || "Failed to send password reset email.";
+  } catch (error: unknown) {
+    let errorMessage = "Failed to send password reset email.";
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
     $authError.set(errorMessage);
     toast.error(errorMessage);
     return { success: false, message: errorMessage };

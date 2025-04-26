@@ -58,7 +58,7 @@ Focus on the main points and key information.`;
     }
 
     // Store the content and summary in the notes table
-    const { data: noteData, error: noteError } = await locals.supabase
+    const { data: noteData } = await locals.supabase
       .from("notes")
       .insert({
         content: text,
@@ -70,11 +70,6 @@ Focus on the main points and key information.`;
       })
       .select()
       .single();
-
-    if (noteError) {
-      console.error("Failed to store note:", noteError);
-      // Don't fail the request if storage fails
-    }
 
     return new Response(
       JSON.stringify({
@@ -88,9 +83,7 @@ Focus on the main points and key information.`;
         },
       }
     );
-  } catch (error) {
-    console.error("Error in summarize endpoint:", error);
-
+  } catch (error: unknown) {
     // Handle different types of errors
     if (error instanceof z.ZodError) {
       return new Response(

@@ -55,8 +55,8 @@ export function useNotes(user: AppUser | null) {
           }
         )
         .subscribe();
-    } catch (error) {
-      console.error("Error setting up realtime subscription:", error);
+    } catch {
+      // Do nothing
     }
 
     return () => {
@@ -83,8 +83,8 @@ export function useNotes(user: AppUser | null) {
         const fetchedNotes = await response.json();
         setNotes(fetchedNotes.notes || []);
         setSelectedNote(null);
-      } catch (err: any) {
-        toast.error(err.message || "Failed to load notes");
+      } catch (err: unknown) {
+        toast.error(err instanceof Error ? err.message : "Failed to load notes");
         setNotes([]);
       } finally {
         setIsLoading(false);
@@ -140,9 +140,6 @@ export function useNotes(user: AppUser | null) {
         });
 
         if (!summarizeResponse.ok) {
-          const errorData = await summarizeResponse.json();
-          console.error("Summarization failed:", errorData);
-          // Note: We don't throw here because the note was saved successfully
           toast.warning("Note saved, but summary generation failed. You can retry later.");
           return true;
         }
@@ -150,9 +147,7 @@ export function useNotes(user: AppUser | null) {
         toast.success("Note saved successfully. Generating summary...");
         setNoteContent("");
         return true;
-      } catch (err: any) {
-        const errorMessage = err instanceof Error ? err.message : "An unknown error occurred";
-        console.error("Error during note saving process:", errorMessage, err);
+      } catch {
         toast.error("Failed to save note. Please try again.");
         return false;
       } finally {

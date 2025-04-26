@@ -24,7 +24,7 @@ export class ApiTestHelper {
   /**
    * Perform a POST request to an API endpoint
    */
-  async post(endpoint: string, data: any, expectedStatus = 200) {
+  async post(endpoint: string, data: string | object, expectedStatus = 200) {
     const response = await request(this.baseUrl)
       .post(endpoint)
       .send(data)
@@ -38,7 +38,7 @@ export class ApiTestHelper {
   /**
    * Perform a PUT request to an API endpoint
    */
-  async put(endpoint: string, data: any, expectedStatus = 200) {
+  async put(endpoint: string, data: string | object, expectedStatus = 200) {
     const response = await request(this.baseUrl)
       .put(endpoint)
       .send(data)

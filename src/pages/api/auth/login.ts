@@ -16,7 +16,6 @@ export const POST: APIRoute = async ({ request, cookies, locals }) => {
   });
 
   if (error) {
-    console.error("Login error:", error.message);
     return new Response(JSON.stringify({ error: error.message || "Login failed" }), {
       status: error.status || 500,
     });

@@ -24,9 +24,8 @@ export function useCategories(initialCategories: Category[] = []) {
       if (fetchedData.categories?.length > 0 && !selectedCategoryId) {
         setSelectedCategoryId(fetchedData.categories[0].id);
       }
-    } catch (err: any) {
-      console.error("Error loading categories:", err);
-      toast.error(err.message || "Failed to load categories");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to load categories");
       setCategories([]);
     } finally {
       setIsLoading(false);

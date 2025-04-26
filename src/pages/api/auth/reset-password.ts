@@ -19,8 +19,6 @@ export const POST: APIRoute = async ({ request, locals, url }) => {
   });
 
   if (error) {
-    console.error("Password reset error:", error.message);
-    // Avoid leaking detailed error info to the client
     return new Response(
       JSON.stringify({
         error: "Failed to send reset email. Please try again.",

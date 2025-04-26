@@ -16,14 +16,6 @@ export async function GET(context: APIContext): Promise<Response> {
     });
   }
 
-  // Optional: Check if user needs to be logged in to view categories
-  // if (!user) {
-  //   return new Response(JSON.stringify({ error: "Unauthorized" }), {
-  //     status: 401,
-  //     headers: { 'Content-Type': 'application/json' },
-  //   });
-  // }
-
   try {
     // Fetch all categories, ensuring all fields required by the Category type are selected
     const { data, error } = await supabase
@@ -32,7 +24,6 @@ export async function GET(context: APIContext): Promise<Response> {
       .order("created_at", { ascending: true });
 
     if (error) {
-      console.error("Supabase error fetching categories:", error);
       throw error; // Let the catch block handle it
     }
 
@@ -44,9 +35,8 @@ export async function GET(context: APIContext): Promise<Response> {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
-  } catch (error: any) {
-    console.error("Error in /api/categories:", error);
-    return new Response(JSON.stringify({ error: error.message || "Failed to fetch categories" }), {
+  } catch {
+    return new Response(JSON.stringify({ error: "Failed to fetch categories" }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
     });

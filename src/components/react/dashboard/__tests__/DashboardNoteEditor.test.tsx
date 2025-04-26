@@ -18,7 +18,9 @@ describe("DashboardNoteEditor", () => {
   beforeEach(() => {
     vi.resetAllMocks();
     // Keep console.error mock if needed for other tests, or remove if not
-    vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.spyOn(console, "error").mockImplementation(() => {
+      /* Do noting */
+    });
     // Remove fetch mock setup
   });
 

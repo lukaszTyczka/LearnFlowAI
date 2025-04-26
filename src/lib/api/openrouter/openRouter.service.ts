@@ -69,7 +69,7 @@ export class OpenRouterApiError extends Error {
   constructor(
     message: string,
     public status?: number,
-    public details?: any
+    public details?: unknown
   ) {
     super(message);
     this.name = "OpenRouterApiError";
@@ -112,7 +112,6 @@ export class OpenRouterService {
   ) {
     this.apiKey = config.apiKey || import.meta.env.OPENROUTER_API_KEY;
     if (!this.apiKey) {
-      console.error("OpenRouter API Key is missing. Please set OPENROUTER_API_KEY environment variable.");
       throw new Error("OpenRouter API Key is not configured.");
     }
 
@@ -139,7 +138,7 @@ export class OpenRouterService {
   ): Promise<StructuredChatCompletionResponse<T>> {
     const jsonSchema = zodToJsonSchema(zodSchema) as {
       type?: string;
-      properties?: Record<string, any>;
+      properties?: Record<string, unknown>;
       required?: string[];
       additionalProperties?: boolean;
     };
@@ -164,17 +163,18 @@ export class OpenRouterService {
     };
 
     const response = await this._request("/chat/completions", body);
-    const rawResponse = await this._handleResponse<any>(response);
+    const rawResponse = await this._handleResponse<ChatCompletionResponse>(response);
 
     if (!rawResponse || !Array.isArray(rawResponse.choices)) {
-      console.error("Unexpected API response structure:", rawResponse);
       throw new OpenRouterApiError("Invalid API response structure", response.status, rawResponse);
     }
 
     // Create a structured response that matches our expected format
     const structuredResponse: StructuredChatCompletionResponse<T> = {
       ...rawResponse,
-      choices: rawResponse.choices.map((choice: any) => ({
+      choices: (
+        rawResponse.choices as { index?: number; message?: { content?: unknown }; finish_reason?: string }[]
+      ).map((choice) => ({
         index: choice.index || 0,
         message: {
           role: "assistant",
@@ -216,8 +216,7 @@ export class OpenRouterService {
               : firstChoice.message.content;
 
           cachedPayload = zodSchema.parse(content);
-        } catch (error) {
-          console.error("Failed to parse JSON payload:", error);
+        } catch {
           cachedPayload = null;
         }
         hasAttemptedParse = true;
@@ -228,7 +227,7 @@ export class OpenRouterService {
     return structuredResponse;
   }
 
-  private async _request(endpoint: string, body: Record<string, any>): Promise<Response> {
+  private async _request(endpoint: string, body: Record<string, unknown>): Promise<Response> {
     const url = `${this.baseURL}${endpoint}`;
     const headers = {
       Authorization: `Bearer ${this.apiKey}`,
@@ -244,9 +243,11 @@ export class OpenRouterService {
         body: JSON.stringify(body),
       });
       return response;
-    } catch (error: any) {
-      console.error(`Network error calling OpenRouter API: ${error.message}`, error);
-      throw new NetworkError(`Failed to connect to OpenRouter API: ${error.message}`, error);
+    } catch (error: unknown) {
+      throw new NetworkError(
+        `Failed to connect to OpenRouter API: ${error instanceof Error ? error.message : "Unknown error"}`,
+        error instanceof Error ? error : undefined
+      );
     }
   }
 
@@ -257,14 +258,12 @@ export class OpenRouterService {
     } catch (e) {
       try {
         const textBody = await response.text();
-        console.error(`Failed to parse JSON response from OpenRouter. Status: ${response.status}. Body: ${textBody}`);
         throw new JsonParsingError(
           `Failed to parse JSON response. Status: ${response.status}`,
           textBody,
           e instanceof Error ? e : undefined
         );
-      } catch (textError) {
-        console.error(`Failed to parse JSON and text response from OpenRouter. Status: ${response.status}.`);
+      } catch {
         throw new Error(`Received non-JSON, non-text response from OpenRouter. Status: ${response.status}`);
       }
     }
@@ -272,8 +271,6 @@ export class OpenRouterService {
     if (!response.ok) {
       const errorMessage = `OpenRouter API Error: ${response.status} ${response.statusText}`;
       const errorDetails = responseBody?.error || responseBody;
-      console.error(errorMessage, errorDetails);
-
       // Handle rate limiting specifically
       if (response.status === 429) {
         const retryAfter = response.headers.get("Retry-After");

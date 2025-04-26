@@ -28,7 +28,7 @@ const SummarySection: React.FC<{ note: Note }> = ({ note }) => {
       }
 
       toast.success("Retrying summary generation...");
-    } catch (error) {
+    } catch {
       toast.error("Failed to retry summary generation. Please try again.");
     }
   };

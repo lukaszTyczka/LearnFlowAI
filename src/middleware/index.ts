@@ -33,19 +33,15 @@ export const onRequest = defineMiddleware(async (context, next) => {
   const refreshToken = context.cookies.get("sb-refresh-token")?.value;
 
   let user = null;
-  let sessionError = null;
 
   if (accessToken && refreshToken) {
     // Set the session for the client to use
-    const { data, error: sessionSetError } = await supabaseClient.auth.setSession({
+    const { data } = await supabaseClient.auth.setSession({
       access_token: accessToken,
       refresh_token: refreshToken,
     });
 
-    if (sessionSetError) {
-      console.error("Error setting session:", sessionSetError.message);
-      sessionError = sessionSetError;
-    } else if (data?.session) {
+    if (data?.session) {
       user = data.user;
       if (data.session.access_token !== accessToken || data.session.refresh_token !== refreshToken) {
         setAuthCookies(context, data.session);
@@ -56,8 +52,6 @@ export const onRequest = defineMiddleware(async (context, next) => {
       });
 
       if (refreshError) {
-        console.error("Error refreshing session:", refreshError.message);
-        sessionError = refreshError;
         context.cookies.delete("sb-access-token", { path: "/" });
         context.cookies.delete("sb-refresh-token", { path: "/" });
       } else if (refreshData?.session) {
@@ -81,22 +75,12 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   // If user is not logged in and trying to access a protected path
   if (!user && protectedPaths.some((path) => currentPath.startsWith(path))) {
-    console.log(`Redirecting unauthenticated user from ${currentPath} to /login`);
     return context.redirect("/login"); // Redirect to login page
   }
 
   // If user is logged in and trying to access a public-only path
   if (user && publicOnlyPaths.some((path) => currentPath.startsWith(path))) {
-    console.log(`Redirecting authenticated user from ${currentPath} to /app/dashboard`);
     return context.redirect("/app/dashboard"); // Redirect to the actual dashboard page
-  }
-
-  // If session had an error, potentially log it or handle differently
-  if (sessionError) {
-    // Optionally clear cookies again if needed
-    // context.cookies.delete('sb-access-token', { path: '/' });
-    // context.cookies.delete('sb-refresh-token', { path: '/' });
-    console.log("Session error occurred, proceeding without user session.");
   }
 
   // Proceed to the next middleware or page

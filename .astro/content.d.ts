@@ -2,7 +2,7 @@ declare module "astro:content" {
   export interface RenderResult {
     Content: import("astro/runtime/server/index.js").AstroComponentFactory;
     headings: import("astro").MarkdownHeading[];
-    remarkPluginFrontmatter: Record<string, any>;
+    remarkPluginFrontmatter: Record<string, unknown>;
   }
   interface Render {
     ".md": Promise<RenderResult>;
@@ -26,7 +26,7 @@ declare module "astro:content" {
   export type ContentCollectionKey = keyof ContentEntryMap;
   export type DataCollectionKey = keyof DataEntryMap;
 
-  type AllValuesOf<T> = T extends any ? T[keyof T] : never;
+  type AllValuesOf<T> = T extends unknown ? T[keyof T] : never;
   type ValidContentEntrySlug<C extends keyof ContentEntryMap> = AllValuesOf<ContentEntryMap[C]>["slug"];
 
   export interface ReferenceDataEntry<C extends CollectionKey, E extends keyof DataEntryMap[C] = string> {
@@ -83,11 +83,8 @@ declare module "astro:content" {
     : Promise<CollectionEntry<C> | undefined>;
 
   /** Resolve an array of entry references from the same collection */
-  export function getEntries<C extends keyof ContentEntryMap>(
-    entries: ReferenceContentEntry<C, ValidContentEntrySlug<C>>[]
-  ): Promise<CollectionEntry<C>[]>;
-  export function getEntries<C extends keyof DataEntryMap>(
-    entries: ReferenceDataEntry<C, keyof DataEntryMap[C]>[]
+  export function getEntries<C extends keyof AnyEntryMap>(
+    entries: ReferenceContentEntry<C, ValidContentEntrySlug<C>>[] | ReferenceDataEntry<C, keyof DataEntryMap[C]>[]
   ): Promise<CollectionEntry<C>[]>;
 
   export function render<C extends keyof AnyEntryMap>(entry: AnyEntryMap[C][string]): Promise<RenderResult>;
@@ -107,15 +104,10 @@ declare module "astro:content" {
     collection: C
   ): import("astro/zod").ZodEffects<import("astro/zod").ZodString, never>;
 
-  type ReturnTypeOrOriginal<T> = T extends (...args: any[]) => infer R ? R : T;
+  type ReturnTypeOrOriginal<T> = T extends (...args: unknown[]) => infer R ? R : T;
   type InferEntrySchema<C extends keyof AnyEntryMap> = import("astro/zod").infer<
     ReturnTypeOrOriginal<Required<ContentConfig["collections"][C]>["schema"]>
   >;
-
-  interface ContentEntryMap {}
-
-  interface DataEntryMap {}
-
   type AnyEntryMap = ContentEntryMap & DataEntryMap;
 
   export type ContentConfig = typeof import("../src/content.config.mjs");

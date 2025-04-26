@@ -27,7 +27,6 @@ export async function GET(context: APIContext): Promise<Response> {
       .single();
 
     if (error) {
-      console.error(`Supabase error fetching category ${id}:`, error);
       if (error.code === "PGRST116") {
         return new Response(JSON.stringify({ error: "Category not found" }), {
           status: 404,
@@ -48,9 +47,8 @@ export async function GET(context: APIContext): Promise<Response> {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
-  } catch (error: any) {
-    console.error(`Error in /api/categories/${id}:`, error);
-    return new Response(JSON.stringify({ error: error.message || "Failed to fetch category" }), {
+  } catch {
+    return new Response(JSON.stringify({ error: "Failed to fetch category" }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
     });

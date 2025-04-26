@@ -174,8 +174,6 @@ Focus on the main points and key information.`;
       );
     }
   } catch (error) {
-    console.error("Error in summarize endpoint:", error);
-
     const summarizeError =
       error instanceof SummarizeError
         ? error
