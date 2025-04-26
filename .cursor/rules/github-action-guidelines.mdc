@@ -1,0 +1,25 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# AI Rules for {{project-name}}
+
+LearnFlow AI is a platform (initially web or console-based) designed as a "second brain" to enhance learning, especially for programmers. The system accepts text notes (.md, .txt, pasted text) and code snippets. Using AI through OpenRouter (starting with gpt-4o-mini models), it automatically generates concise summaries, categorizes content into user-defined groups, and creates multiple-choice (ABCD) questions for knowledge verification. The MVP focuses on validating core value for the initial user ("client zero") in processing materials and generating helpful outputs. Built with JS/TS backend, it features basic integrations with Notion (CSV export of Q&A) and Todoist (creating 'learning' tagged tasks). Key features include AI-generated content quality assessment and storage of notes, results, and ratings in a simple database.
+
+## DEVOPS
+
+### Guidelines for CI_CD
+
+#### GITHUB_ACTIONS
+
+- Check if `package.json` exists in project root and summarize key scripts
+- Check if `.nvmrc` exists in project root
+- Check if `.env.example` exists in project root to identify key `env:` variables
+- Always use terminal command: `git branch -a | cat` to verify whether we use `main` or `master` branch
+- Always use `env:` variables and secrets attached to jobs instead of global workflows
+- Always use `npm ci` for Node-based dependency setup
+- Extract common steps into composite actions in separate files
+- Once you're done, as a final step conduct the following: for each public action always use <tool>"Run Terminal"</tool> to see what is the most up-to-date version (use only major version) - extract tag_name from the response:
+- ```bash curl -s https://api.github.com/repos/{owner}/{repo}/releases/latest ```
+
