@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { useNotes } from "./useNotes";
 import { toast } from "sonner";
+import type { AppUser } from "../../stores/authStore"; // Adjust path if needed
 
 // Mock the toast module
 vi.mock("sonner", () => ({
@@ -32,20 +33,34 @@ vi.mock("../../db/supabase.client", () => ({
   },
 }));
 
-describe("useNotes hook - saveNote method", () => {
-  const mockUser = { id: "user-123", email: "test@example.com" };
-  const mockCategoryId = "category-123";
-  const validNoteContent = "a".repeat(500); // Valid note content (between 300-10000 chars)
-  const mockNote = {
-    id: "note-123",
-    content: validNoteContent,
-    category_id: mockCategoryId,
+// Mock user object - adjusted to match AppUser type
+const mockUser: AppUser = {
+  id: "test-user-id",
+  email: "test@example.com",
+  user_metadata: { test: "meta" }, // Optional, added for completeness
+};
+
+const mockNoteResponse = {
+  note: {
+    id: "new-note-id",
+    content: "This is a test note content longer than 300 characters...".repeat(10),
     user_id: mockUser.id,
-    summary_status: "pending" as const,
+    category_id: "test-category-id",
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
-  };
+    summary: null,
+    summary_status: "pending",
+    summary_error_message: null,
+    embedding: null,
+    qa_status: "pending",
+    qa_error_message: null,
+  },
+};
 
+const mockCategoryId = "test-category-id";
+const initialNoteContent = "This is a test note content longer than 300 characters...".repeat(10); // Ensure length > 300
+
+describe("useNotes hook - saveNote method", () => {
   beforeEach(() => {
     vi.resetAllMocks();
     mockFetch.mockReset();
@@ -123,7 +138,7 @@ describe("useNotes hook - saveNote method", () => {
     mockFetch
       .mockResolvedValueOnce({
         ok: true,
-        json: vi.fn().mockResolvedValueOnce({ note: mockNote }),
+        json: vi.fn().mockResolvedValueOnce({ note: mockNoteResponse.note }),
       })
       .mockResolvedValueOnce({
         ok: true,
@@ -132,7 +147,7 @@ describe("useNotes hook - saveNote method", () => {
 
     // Set valid note content
     act(() => {
-      result.current.setNoteContent(validNoteContent);
+      result.current.setNoteContent(mockNoteResponse.note.content);
     });
 
     // Verify isSaving state changes correctly
@@ -151,14 +166,14 @@ describe("useNotes hook - saveNote method", () => {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        content: validNoteContent,
+        content: mockNoteResponse.note.content,
         category_id: mockCategoryId,
         summary_status: "pending",
       }),
     });
 
     // Verify summarize fetch call
-    expect(mockFetch).toHaveBeenNthCalledWith(2, `/api/ai/summarize/${mockNote.id}`, {
+    expect(mockFetch).toHaveBeenNthCalledWith(2, `/api/ai/summarize/${mockNoteResponse.note.id}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
     });
@@ -184,7 +199,7 @@ describe("useNotes hook - saveNote method", () => {
 
     // Set valid note content
     act(() => {
-      result.current.setNoteContent(validNoteContent);
+      result.current.setNoteContent(mockNoteResponse.note.content);
     });
 
     await act(async () => {
@@ -192,7 +207,8 @@ describe("useNotes hook - saveNote method", () => {
       expect(success).toBe(false);
     });
 
-    expect(toast.error).toHaveBeenCalledWith("Failed to save note. Please try again.");
+    // Expect the more specific error message from the catch block
+    expect(toast.error).toHaveBeenCalledWith(`Failed to save note: ${notesErrorMessage}. Please try again.`);
     expect(mockFetch).toHaveBeenCalledTimes(1);
   });
 
@@ -203,7 +219,7 @@ describe("useNotes hook - saveNote method", () => {
     mockFetch
       .mockResolvedValueOnce({
         ok: true,
-        json: vi.fn().mockResolvedValueOnce({ note: mockNote }),
+        json: vi.fn().mockResolvedValueOnce({ note: mockNoteResponse.note }),
       })
       .mockResolvedValueOnce({
         ok: false,
@@ -212,7 +228,7 @@ describe("useNotes hook - saveNote method", () => {
 
     // Set valid note content
     act(() => {
-      result.current.setNoteContent(validNoteContent);
+      result.current.setNoteContent(mockNoteResponse.note.content);
     });
 
     await act(async () => {
@@ -220,19 +236,23 @@ describe("useNotes hook - saveNote method", () => {
       expect(success).toBe(true);
     });
 
-    expect(toast.warning).toHaveBeenCalledWith("Note saved, but summary generation failed. You can retry later.");
+    // Expect the updated warning message
+    expect(toast.warning).toHaveBeenCalledWith(
+      "Note saved, but failed to start summary generation. You can retry later."
+    );
     expect(mockFetch).toHaveBeenCalledTimes(2);
   });
 
   it("should handle network errors during note saving", async () => {
     const { result } = renderHook(() => useNotes(mockUser));
+    const networkErrorMessage = "Network error";
 
     // Mock network error
-    mockFetch.mockRejectedValueOnce(new Error("Network error"));
+    mockFetch.mockRejectedValueOnce(new Error(networkErrorMessage));
 
     // Set valid note content
     act(() => {
-      result.current.setNoteContent(validNoteContent);
+      result.current.setNoteContent(mockNoteResponse.note.content);
     });
 
     await act(async () => {
@@ -240,7 +260,8 @@ describe("useNotes hook - saveNote method", () => {
       expect(success).toBe(false);
     });
 
-    expect(toast.error).toHaveBeenCalledWith("Failed to save note. Please try again.");
+    // Expect the more specific error message including the network error
+    expect(toast.error).toHaveBeenCalledWith(`Failed to save note: ${networkErrorMessage}. Please try again.`);
     expect(mockFetch).toHaveBeenCalledTimes(1);
   });
 
@@ -254,14 +275,14 @@ describe("useNotes hook - saveNote method", () => {
       // Simulate processing status update
       act(() => {
         callback({
-          new: { ...mockNote, summary_status: "processing" },
+          new: { ...mockNoteResponse.note, summary_status: "processing" },
         });
       });
 
       // Simulate completed status update
       act(() => {
         callback({
-          new: { ...mockNote, summary_status: "completed" },
+          new: { ...mockNoteResponse.note, summary_status: "completed" },
         });
       });
 
@@ -275,5 +296,67 @@ describe("useNotes hook - saveNote method", () => {
 
       expect(mockUnsubscribe).toHaveBeenCalled();
     });
+  });
+
+  it("should clear noteContent immediately after successful save, before summary request", async () => {
+    // Mock fetch responses specifically for this test
+    (global.fetch as ReturnType<typeof vi.fn>)
+      .mockResolvedValueOnce({
+        // Mock successful save response
+        ok: true,
+        json: async () => mockNoteResponse,
+      })
+      .mockResolvedValueOnce({
+        // Mock successful (or any) summary response
+        ok: true,
+        json: async () => ({}),
+      });
+
+    const { result } = renderHook(() => useNotes(mockUser));
+
+    // Set initial note content
+    act(() => {
+      result.current.setNoteContent(initialNoteContent);
+    });
+
+    expect(result.current.noteContent).toBe(initialNoteContent);
+
+    // Call saveNote
+    let savePromise: Promise<boolean> | undefined;
+    act(() => {
+      savePromise = result.current.saveNote(mockCategoryId);
+    });
+
+    // Wait for the saveNote function to process the first fetch (save note)
+    // We need to wait for the state update triggered by the fetch response
+    await act(async () => {
+      await vi.waitFor(() => {
+        expect(global.fetch).toHaveBeenCalledWith("/api/notes", expect.anything());
+      });
+    });
+
+    // --- Core Assertion ---
+    // Check if noteContent is cleared IMMEDIATELY after save is processed,
+    // even if the summary fetch is still pending or hasn't started.
+    expect(result.current.noteContent).toBe("");
+    // --- End Core Assertion ---
+
+    // Check if the success toast for saving was called
+    expect(vi.mocked(global.fetch).mock.calls.length).toBeGreaterThanOrEqual(1); // Ensure save was called
+    expect(toast.success).toHaveBeenCalledWith("Note saved successfully. Generating summary...");
+
+    // Check if the summarization fetch was called *after* clearing content
+    await act(async () => {
+      await vi.waitFor(() => {
+        expect(global.fetch).toHaveBeenCalledWith(`/api/ai/summarize/${mockNoteResponse.note.id}`, expect.anything());
+      });
+    });
+
+    // Wait for the entire saveNote promise to resolve (including summary call)
+    const saveResult = await savePromise;
+    expect(saveResult).toBe(true); // Ensure saveNote reported success
+
+    // Final check: content should still be empty
+    expect(result.current.noteContent).toBe("");
   });
 });

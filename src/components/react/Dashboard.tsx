@@ -86,7 +86,7 @@ const DashboardReact: React.FC<DashboardProps> = ({ initialCategories = [] }) =>
   };
 
   return (
-    <div className="min-h-screen min-w-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-background">
       {/* Top Bar */}
       <DashboardTopBar userEmail={hasMounted ? user?.email : undefined} onLogout={handleLogout} />
 

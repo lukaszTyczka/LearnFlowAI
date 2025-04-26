@@ -132,6 +132,10 @@ export function useNotes(user: AppUser | null) {
 
         // Add the new note to the list immediately with proper typing
         setNotes((currentNotes) => [note as Note, ...currentNotes]);
+        // Clear the text area immediately after successful save
+        setNoteContent("");
+        // Display success message for saving
+        toast.success("Note saved successfully. Generating summary...");
 
         // Then trigger summarization
         const summarizeResponse = await fetch(`/api/ai/summarize/${note.id}`, {
@@ -140,15 +144,15 @@ export function useNotes(user: AppUser | null) {
         });
 
         if (!summarizeResponse.ok) {
-          toast.warning("Note saved, but summary generation failed. You can retry later.");
-          return true;
+          // Update toast if summarization initiation fails
+          toast.warning("Note saved, but failed to start summary generation. You can retry later.");
         }
 
-        toast.success("Note saved successfully. Generating summary...");
-        setNoteContent("");
         return true;
-      } catch {
-        toast.error("Failed to save note. Please try again.");
+      } catch (err: unknown) {
+        // Explicitly type error
+        const errorMessage = err instanceof Error ? err.message : "An unexpected error occurred";
+        toast.error(`Failed to save note: ${errorMessage}. Please try again.`);
         return false;
       } finally {
         setIsSaving(false);

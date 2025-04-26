@@ -55,11 +55,11 @@ describe("DashboardNoteEditor", () => {
     expect(screen.getByRole("textbox")).toBeDisabled();
   });
 
-  it('shows "Saving & Summarizing..." text on button when saving', () => {
+  it('shows "Saving..." text on button when saving', () => {
     render(<DashboardNoteEditor {...defaultProps} isSaving={true} />);
 
-    // Check for the updated button text
-    expect(screen.getByRole("button", { name: /saving & summarizing.../i })).toBeInTheDocument();
+    // Check for the updated button text "Saving..."
+    expect(screen.getByRole("button", { name: /saving.../i })).toBeInTheDocument();
     expect(screen.getByRole("button")).toBeDisabled();
   });
 
