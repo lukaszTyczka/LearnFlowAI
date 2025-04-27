@@ -19,6 +19,7 @@
     "test:e2e:codegen": "playwright codegen"
   },
   "dependencies": {
+    "@astrojs/cloudflare": "^12.5.1",
     "@astrojs/react": "^4.2.4",
     "@nanostores/react": "^1.0.0",
     "@radix-ui/react-label": "^2.1.4",
