@@ -39,7 +39,7 @@ export const LoginForm: React.FC = () => {
 
   if (resetMode) {
     return (
-      <Card className="w-full max-w-md mx-auto mt-8 shadow-md">
+      <Card className="w-full max-w-md mx-auto shadow-md">
         <CardHeader>
           <CardTitle className="text-2xl">Reset Password</CardTitle>
           <CardDescription>
@@ -97,7 +97,7 @@ export const LoginForm: React.FC = () => {
   }
 
   return (
-    <Card className="w-full max-w-md mx-auto mt-8 shadow-md">
+    <Card className="w-full max-w-md mx-auto shadow-md">
       <CardHeader>
         <CardTitle className="text-2xl">Login</CardTitle>
         <CardDescription>Enter your credentials to access your account</CardDescription>
