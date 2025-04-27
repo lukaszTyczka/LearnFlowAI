@@ -2,99 +2,87 @@
 // src/components/astro/HomePage.astro
 // No props needed for this static component
 
+// TODO: Replace placeholder icons with actual SVGs from a library like Lucide Icons (https://lucide.dev/)
 const features = [
   {
     name: "AI-Powered Summaries",
     description: "Transform lengthy notes into concise, easy-to-understand summaries using advanced AI technology.",
+    // Placeholder Icon: Document/Text related
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" /></svg>`,
   },
   {
     name: "Interactive Learning",
     description: "Generate custom quizzes and flashcards to test your knowledge and reinforce learning.",
+    // Placeholder Icon: Question/Interaction related
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" /></svg>`,
   },
   {
     name: "Smart Organization",
     description: "Automatically categorize and organize your learning materials for efficient review and reference.",
+    // Placeholder Icon: Folder/Tag related
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9.75h16.5m-16.5 4.5h16.5m-16.5 4.5h16.5M6.75 21v-5.625a1.5 1.5 0 0 1 1.5-1.5h7.5a1.5 1.5 0 0 1 1.5 1.5V21M6.75 3v5.625A1.5 1.5 0 0 0 8.25 10.5h7.5a1.5 1.5 0 0 0 1.5-1.5V3" /></svg>`,
   },
 ];
+
+// NOTE: Applying 'font-sans'. If a specific font like 'Inter' is desired,
+// ensure it's imported (e.g., in BaseLayout or global.css) and configured
+// in tailwind.config.mjs (e.g., theme.extend.fontFamily.sans = ['Inter', ...]).
 ---
 
-<div class="relative min-h-screen bg-gradient-to-b from-gray-50 to-white">
-  {/* Header section */}
-  <header>
-    <nav class="container mx-auto flex items-center justify-end p-6 lg:px-8" aria-label="Global">
-      <div class="flex gap-x-4">
-        <a
-          href="/login"
-          class="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-        >
-          Sign in
-        </a>
-        <a
-          href="/register"
-          class="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-        >
-          Register
-        </a>
-      </div>
-    </nav>
-  </header>
-
-  {/* Hero Section */}
-  <div class="container mx-auto px-4 py-16">
-    <div class="text-center">
-      <h1 class="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">LearnFlow AI</h1>
-      <p class="mt-6 text-lg leading-8 text-gray-600">
-        Your personal AI-powered learning assistant. Transform your notes into structured knowledge and interactive
-        quizzes.
-      </p>
-      <div class="mt-10 flex items-center justify-center gap-x-6">
-        <a
-          href="/login"
-          class="rounded-md bg-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-        >
-          Get Started
-        </a>
-        {/* Assuming /about page does not exist yet, link can be removed or point elsewhere */}
-        <a
-          href="#features"
-          class="rounded-md bg-white px-6 py-3 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-        >
-          Learn More
-        </a>
-      </div>
+{/* Hero Section */}
+<div class="container mx-auto px-6 py-24 sm:py-32 lg:px-8">
+  <div class="text-center">
+    <h1 class="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">LearnFlow AI</h1>
+    <p class="mt-6 text-lg leading-8 text-gray-600">
+      Your personal AI-powered learning assistant. Transform your notes into structured knowledge and interactive
+      quizzes.
+    </p>
+    <div class="mt-10 flex items-center justify-center gap-x-6">
+      {/* Primary CTA */}
+      <a
+        href="/register"
+        class="rounded-md bg-purple-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
+      >
+        Get Started
+      </a>
+      {/* Secondary CTA */}
+      <a
+        href="#features"
+        class="rounded-md bg-white px-6 py-3 text-sm font-semibold text-purple-600 shadow-sm ring-1 ring-inset ring-purple-300 hover:bg-purple-50"
+      >
+        Learn More
+      </a>
     </div>
   </div>
+</div>
 
-  {/* Features Section */}
-  <div id="features" class="py-24 sm:py-32">
-    <div class="mx-auto max-w-7xl px-6 lg:px-8">
-      <div class="mx-auto max-w-2xl lg:text-center">
-        <h2 class="text-base font-semibold leading-7 text-indigo-600">Learn Faster</h2>
-        <p class="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-          Everything you need to accelerate your learning
-        </p>
-      </div>
-      <div class="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
-        <dl class="grid max-w-xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none lg:grid-cols-3">
-          {
-            features.map((feature) => (
-              <div class="flex flex-col">
-                <dt class="flex items-center gap-x-3 text-base font-semibold leading-7 text-gray-900">
-                  {/* Icon placeholder - could add SVGs later */}
-                  <div class="h-6 w-6 flex-none text-indigo-600" aria-hidden="true">
-                    {" "}
-                    {/* Placeholder for icon */}{" "}
-                  </div>
-                  {feature.name}
-                </dt>
-                <dd class="mt-4 flex flex-auto flex-col text-base leading-7 text-gray-600">
-                  <p class="flex-auto">{feature.description}</p>
-                </dd>
-              </div>
-            ))
-          }
-        </dl>
-      </div>
+{/* Features Section */}
+<div id="features" class="bg-white py-24 sm:py-32">
+  <div class="mx-auto max-w-7xl px-6 lg:px-8">
+    <div class="mx-auto max-w-2xl lg:text-center">
+      <h2 class="text-base font-semibold leading-7 text-purple-600">Learn Faster</h2>
+      <p class="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+        Everything you need to accelerate your learning
+      </p>
+    </div>
+    <div class="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
+      <dl class="grid max-w-xl grid-cols-1 gap-x-8 gap-y-10 lg:max-w-none lg:grid-cols-3 lg:gap-y-16">
+        {
+          features.map((feature) => (
+            <div class="flex flex-col rounded-lg p-6 transition-shadow duration-200 hover:shadow-md">
+              <dt class="flex items-center gap-x-3 text-base font-semibold leading-7 text-gray-900">
+                <div class="flex h-10 w-10 flex-none items-center justify-center rounded-lg bg-purple-100 text-purple-600">
+                  <Fragment set:html={feature.icon} />
+                </div>
+                {feature.name}
+              </dt>
+              <dd class="mt-4 flex flex-auto flex-col text-base leading-7 text-gray-600">
+                <p class="flex-auto">{feature.description}</p>
+              </dd>
+            </div>
+          ))
+        }
+      </dl>
     </div>
   </div>
 </div>

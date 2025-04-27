@@ -11,14 +11,63 @@ const initialUser = Astro.locals.user ?? null;
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="description" content="Astro description" />
+    <meta name="description" content="LearnFlowAI Application" />
     <meta name="viewport" content="width=device-width" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
   </head>
-  <body>
-    <slot />
+  <body class="flex min-h-screen flex-col bg-gray-50 font-sans">
+    <header
+      class="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
+    >
+      <div class="container mx-auto flex h-14 items-center justify-between px-4 sm:px-6 lg:px-8">
+        <a href="/app/dashboard" class="text-lg font-semibold text-purple-600 hover:text-purple-800"> LearnFlow AI </a>
+        <nav class="flex items-center space-x-4">
+          {
+            initialUser ? (
+              <>
+                <span class="text-sm text-gray-600 hidden sm:inline">Welcome, {initialUser.email ?? "User"}!</span>
+                <form method="POST" action="/api/auth/logout" class="inline">
+                  <button
+                    type="submit"
+                    class="rounded-md border border-input bg-background px-3 py-1.5 text-sm font-medium shadow-sm hover:bg-accent hover:text-accent-foreground"
+                  >
+                    Sign Out
+                  </button>
+                </form>
+              </>
+            ) : (
+              <>
+                <a
+                  href="/login"
+                  class="rounded-md bg-white px-3 py-1.5 text-sm font-semibold leading-6 text-purple-600 shadow-sm ring-1 ring-inset ring-purple-300 hover:bg-purple-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
+                >
+                  Sign in
+                </a>
+                <a
+                  href="/register"
+                  class="rounded-md bg-purple-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
+                >
+                  Register
+                </a>
+              </>
+            )
+          }
+        </nav>
+      </div>
+    </header>
+
+    <main class="flex-grow container mx-auto p-4 sm:p-6 lg:p-8">
+      <slot />
+    </main>
+
+    <footer class="mt-auto border-t bg-white">
+      <div class="container mx-auto px-4 py-4 text-center text-sm text-gray-500 sm:px-6 lg:px-8">
+        &copy; {new Date().getFullYear()} LearnFlowAI. All rights reserved.
+      </div>
+    </footer>
+
     <script type="module" define:vars={{ initialUser }}>
       import { setUser } from "/src/stores/authStore.ts";
       setUser(initialUser);
