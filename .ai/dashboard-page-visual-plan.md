@@ -51,12 +51,6 @@ Stworzenie funkcjonalnego, przejrzystego i spójnego wizualnie interfejsu użytk
         - Każda notatka jako osobna karta (`Card` z Shadcn/ui) z paddingiem i delikatnym cieniem/obramowaniem.
         - Górna część karty: Data dodania notatki (np. "26/04/2025").
         - Środkowa część: Podgląd treści notatki (pierwsze kilka linii lub określona liczba znaków).
-        - Dolna część (Opcjonalnie, przy :hover lub stałe): Przyciski akcji:
-          - "Edytuj" (Edit)
-          - "Usuń" (Delete)
-          - "Generuj Podsumowanie" (AI Summary)
-          - "Generuj Pytania" (AI Quiz)
-          - Styl ikonowy lub małe przyciski typu `ghost`.
         - Odstępy między kartami notatek.
 
 ## Wytyczne Wizualne Dodatkowe
