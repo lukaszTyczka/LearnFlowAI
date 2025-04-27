@@ -1,5 +1,5 @@
 import React from "react";
-import { Card } from "../../ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader } from "../../ui/card";
 import type { Tables } from "../../../db/database.types";
 import { Loader2, AlertCircle } from "lucide-react";
 
@@ -18,32 +18,29 @@ interface DashboardNotesListProps {
 }
 
 const SummaryStatus: React.FC<{ note: Note }> = ({ note }) => {
+  let content: React.ReactNode = null;
+
   if (note.summary_status === "pending" || note.summary_status === "processing") {
-    return (
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+    content = (
+      <div className="flex items-center gap-2">
         <Loader2 className="h-4 w-4 animate-spin" />
-        <span>{note.summary_status === "pending" ? "Waiting to generate summary..." : "Generating summary..."}</span>
+        <span>{note.summary_status === "pending" ? "Pending Summary..." : "Generating Summary..."}</span>
       </div>
     );
-  }
-
-  if (note.summary_status === "failed") {
-    return (
-      <div
-        className="flex items-center gap-2 text-sm text-destructive"
-        title={note.summary_error_message || "Unknown error"}
-      >
+  } else if (note.summary_status === "failed") {
+    content = (
+      <div className="flex items-center gap-2 text-destructive" title={note.summary_error_message || "Unknown error"}>
         <AlertCircle className="h-4 w-4" />
-        <span>Failed to generate summary</span>
+        <span>Summary Failed</span>
       </div>
     );
+  } else if (note.summary_status === "completed" && note.summary) {
+    content = <p className="line-clamp-2">{note.summary}</p>;
+  } else {
+    content = <span>Summary not available</span>;
   }
 
-  if (note.summary) {
-    return <p className="mt-2 text-sm text-muted-foreground line-clamp-2">{note.summary}</p>;
-  }
-
-  return null;
+  return <div className="text-sm text-muted-foreground mt-1">{content}</div>;
 };
 
 const DashboardNotesList: React.FC<DashboardNotesListProps> = ({
@@ -61,35 +58,43 @@ const DashboardNotesList: React.FC<DashboardNotesListProps> = ({
       <h2 className="text-xl font-semibold">
         {selectedCategoryId ? `Notes - ${selectedCategoryName ?? "Selected Category"}` : "Select a category"}
       </h2>
-      {isLoading ? (
-        <div className="flex justify-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
-        </div>
-      ) : notes.length > 0 ? (
-        <div className="grid gap-4">
-          {notes.map((note) => (
-            <Card
-              key={note.id}
-              className="p-4 cursor-pointer hover:bg-accent/50 transition-colors"
-              onClick={() => onNoteSelect(note)}
-            >
-              <p className="text-sm text-muted-foreground">{new Date(note.created_at).toLocaleDateString()}</p>
-              <p className="mt-2 line-clamp-3">{note.content}</p>
-              <div className="mt-2">
-                <SummaryStatus note={note} />
-              </div>
-            </Card>
-          ))}
-        </div>
-      ) : (
-        <div className="text-center py-8 text-muted-foreground">
-          {!isUserLoggedIn
-            ? "Please log in to view notes."
-            : selectedCategoryId
-              ? "No notes in this category yet. Create one above!"
-              : "Select a category to view notes"}
+      {isLoading && (
+        <div className="flex justify-center items-center py-8">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
       )}
+      {!isLoading &&
+        (notes.length > 0 ? (
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {notes.map((note) => (
+              <Card
+                key={note.id}
+                className="flex flex-col cursor-pointer border bg-card hover:shadow-md transition-shadow duration-150"
+                onClick={() => onNoteSelect(note)}
+                tabIndex={0}
+                onKeyDown={(e) => e.key === "Enter" && onNoteSelect(note)}
+              >
+                <CardHeader className="pb-2 pt-4 px-4">
+                  <CardDescription>{new Date(note.created_at).toLocaleDateString()}</CardDescription>
+                </CardHeader>
+                <CardContent className="flex-grow pb-3 px-4">
+                  <p className="line-clamp-4 text-sm text-card-foreground">{note.content}</p>
+                </CardContent>
+                <CardFooter className="pb-3 px-4">
+                  <SummaryStatus note={note} />
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-8 text-muted-foreground">
+            {!isUserLoggedIn
+              ? "Please log in to view notes."
+              : selectedCategoryId
+                ? "No notes in this category yet. Create one above!"
+                : "Select a category from the left to view notes."}
+          </div>
+        ))}
     </div>
   );
 };

@@ -1,8 +1,8 @@
 import React from "react";
 import { Button } from "../../ui/button";
-import { Card } from "../../ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../ui/card";
 import type { Tables } from "../../../db/database.types";
-import { Loader2, AlertCircle, RefreshCcw } from "lucide-react";
+import { Loader2, AlertCircle, RefreshCcw, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 
 type Note = Tables<"notes"> & {
@@ -34,45 +34,55 @@ const SummarySection: React.FC<{ note: Note }> = ({ note }) => {
   };
 
   return (
-    <Card className="p-4">
-      <div className="flex justify-between items-start">
-        <h3 className="text-lg font-semibold mb-2">Summary</h3>
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+        <CardTitle className="text-lg font-semibold">Summary</CardTitle>
         {note.summary_status === "failed" && (
           <Button variant="ghost" size="sm" onClick={handleRetry} className="h-8 px-2">
             <RefreshCcw className="h-4 w-4 mr-2" />
             Retry
           </Button>
         )}
-      </div>
-
-      {(note.summary_status === "pending" || note.summary_status === "processing") && (
-        <div className="flex items-center gap-2 text-muted-foreground">
-          <Loader2 className="h-4 w-4 animate-spin" />
-          <span>{note.summary_status === "pending" ? "Waiting to generate summary..." : "Generating summary..."}</span>
-        </div>
-      )}
-
-      {note.summary_status === "failed" && (
-        <div className="flex items-center gap-2 text-destructive">
-          <AlertCircle className="h-4 w-4" />
-          <span>Failed to generate summary: {note.summary_error_message || "Unknown error"}</span>
-        </div>
-      )}
-
-      {note.summary_status === "completed" && note.summary && <p>{note.summary}</p>}
+      </CardHeader>
+      <CardContent>
+        {(note.summary_status === "pending" || note.summary_status === "processing") && (
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            <span>{note.summary_status === "pending" ? "Pending Summary..." : "Generating Summary..."}</span>
+          </div>
+        )}
+        {note.summary_status === "failed" && (
+          <div className="flex items-center gap-2 text-destructive">
+            <AlertCircle className="h-4 w-4" />
+            <span>Failed: {note.summary_error_message || "Unknown error"}</span>
+          </div>
+        )}
+        {note.summary_status === "completed" && note.summary && (
+          <p className="whitespace-pre-wrap text-sm">{note.summary}</p>
+        )}
+        {note.summary_status === "completed" && !note.summary && (
+          <p className="text-sm text-muted-foreground">Summary generated but content is empty.</p>
+        )}
+      </CardContent>
     </Card>
   );
 };
 
 const DashboardNoteDetail: React.FC<DashboardNoteDetailProps> = ({ note, onBack }) => {
   return (
-    <div className="space-y-4">
-      <Button variant="ghost" onClick={onBack} className="mb-4">
-        ← Back to List
+    <div className="space-y-6">
+      <Button variant="outline" onClick={onBack} className="self-start">
+        <ArrowLeft className="mr-2 h-4 w-4" />
+        Back to List
       </Button>
-      <Card className="p-4">
-        <h3 className="text-lg font-semibold mb-2">Original Note</h3>
-        <p className="whitespace-pre-wrap">{note.content}</p>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold">Original Note</CardTitle>
+          <CardDescription>{new Date(note.created_at).toLocaleString()}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="whitespace-pre-wrap text-sm">{note.content}</p>
+        </CardContent>
       </Card>
       <SummarySection note={note} />
     </div>

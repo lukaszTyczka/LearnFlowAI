@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useStore } from "@nanostores/react";
-import { $user, logout } from "../../stores/authStore";
+import { $user } from "../../stores/authStore";
 import type { Tables } from "../../db/database.types";
 
 // Import custom hooks
@@ -8,11 +8,13 @@ import { useCategories } from "../hooks/useCategories";
 import { useNotes } from "../hooks/useNotes";
 
 // Import the extracted components
-import DashboardTopBar from "./dashboard/DashboardTopBar";
 import DashboardSidebar from "./dashboard/DashboardSidebar";
 import DashboardNoteEditor from "./dashboard/DashboardNoteEditor";
 import DashboardNotesList from "./dashboard/DashboardNotesList";
 import DashboardNoteDetail from "./dashboard/DashboardNoteDetail";
+
+// Keep Toaster for potential future notifications (e.g., save success/error)
+import { Toaster } from "../ui/sonner";
 
 type Category = Tables<"categories">;
 
@@ -54,17 +56,13 @@ const DashboardReact: React.FC<DashboardProps> = ({ initialCategories = [] }) =>
     setHasMounted(true);
   }, []);
 
-  const handleLogout = async () => {
-    const success = await logout();
-    if (success) {
-      window.location.href = "/";
-    }
-  };
-
   const handleSaveNote = async () => {
     const success = await saveNote(selectedCategoryId);
     if (success) {
       loadNotes(selectedCategoryId);
+      // Consider adding a success toast here
+    } else {
+      // Consider adding an error toast here
     }
   };
 
@@ -86,50 +84,52 @@ const DashboardReact: React.FC<DashboardProps> = ({ initialCategories = [] }) =>
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      {/* Top Bar */}
-      <DashboardTopBar userEmail={hasMounted ? user?.email : undefined} onLogout={handleLogout} />
+    // Removed outer div and DashboardTopBar.
+    // BaseLayout provides the header and flex context.
+    // This div now represents the main content area next to the sidebar.
+    <div className="flex flex-1 border-t">
+      {/* Left Sidebar */}
+      <DashboardSidebar
+        categories={categories}
+        isLoading={isLoadingCategories}
+        selectedCategoryId={selectedCategoryId}
+        onSelectCategory={handleCategorySelect}
+      />
 
-      <div className="flex flex-1 h-[calc(100vh-3.5rem)]">
-        {/* Left Sidebar */}
-        <DashboardSidebar
-          categories={categories}
-          isLoading={isLoadingCategories}
-          selectedCategoryId={selectedCategoryId}
-          onSelectCategory={handleCategorySelect}
-        />
+      {/* Main Content Area - adjusted to be direct child of flex container */}
+      <div className="flex-1 flex flex-col overflow-y-auto">
+        {/* Added ScrollArea for potentially long content */}
+        <div className="p-4 md:p-6 lg:p-8 space-y-6 flex-grow">
+          {/* Note Editor */}
+          <DashboardNoteEditor
+            noteContent={noteContent}
+            isSaving={isSaving}
+            // Use hasMounted to prevent hydration mismatch for user check
+            isUserLoggedIn={hasMounted && !!user}
+            hasCategorySelected={!!selectedCategoryId}
+            onContentChange={handleNoteContentChange}
+            onSave={handleSaveNote}
+          />
 
-        {/* Main Content Area */}
-        <div className="flex-1 flex flex-col overflow-hidden">
-          <div className="p-6 space-y-4 h-full overflow-auto">
-            {/* Note Editor */}
-            <DashboardNoteEditor
-              noteContent={noteContent}
-              isSaving={isSaving}
-              isUserLoggedIn={hasMounted && !!user}
-              hasCategorySelected={!!selectedCategoryId}
-              onContentChange={handleNoteContentChange}
-              onSave={handleSaveNote}
-            />
-
-            {/* Notes List / Note Details */}
-            <div className="flex-1">
-              {selectedNote ? (
-                <DashboardNoteDetail note={selectedNote} onBack={handleBackToNotesList} />
-              ) : (
-                <DashboardNotesList
-                  notes={notes}
-                  categories={categories}
-                  selectedCategoryId={selectedCategoryId}
-                  isLoading={isLoadingNotes}
-                  isUserLoggedIn={hasMounted && !!user}
-                  onNoteSelect={handleNoteSelect}
-                />
-              )}
-            </div>
+          {/* Notes List / Note Details */}
+          <div className="flex-1">
+            {selectedNote ? (
+              <DashboardNoteDetail note={selectedNote} onBack={handleBackToNotesList} />
+            ) : (
+              <DashboardNotesList
+                notes={notes}
+                categories={categories}
+                selectedCategoryId={selectedCategoryId}
+                isLoading={isLoadingNotes}
+                isUserLoggedIn={hasMounted && !!user}
+                onNoteSelect={handleNoteSelect}
+              />
+            )}
           </div>
         </div>
       </div>
+      {/* Toaster for notifications */}
+      <Toaster />
     </div>
   );
 };

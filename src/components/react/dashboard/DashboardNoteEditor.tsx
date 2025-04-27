@@ -1,6 +1,8 @@
 import React from "react";
 import { Button } from "../../ui/button";
 import { Textarea } from "../../ui/textarea";
+import { Card, CardContent } from "../../ui/card";
+import { Loader2 } from "lucide-react";
 
 interface DashboardNoteEditorProps {
   noteContent: string;
@@ -20,36 +22,55 @@ const DashboardNoteEditor: React.FC<DashboardNoteEditorProps> = ({
   onSave,
 }) => {
   const isProcessing = isSaving;
+  const minChars = 300;
+  const maxChars = 10000;
 
   const isButtonEnabled =
-    !isProcessing && hasCategorySelected && isUserLoggedIn && noteContent.length >= 300 && noteContent.length <= 10000;
+    !isProcessing &&
+    hasCategorySelected &&
+    isUserLoggedIn &&
+    noteContent.length >= minChars &&
+    noteContent.length <= maxChars;
 
   const handleSave = () => {
     onSave();
   };
 
   return (
-    <div className="rounded-lg border bg-card">
-      <div className="p-4">
+    <Card>
+      <CardContent className="p-4 space-y-2">
         <Textarea
-          placeholder={isUserLoggedIn ? "Enter your note here... (300-10000 chars)" : "Please log in to create notes"}
-          className="min-h-[100px] resize-none w-[90%] mx-auto"
+          placeholder={
+            !isUserLoggedIn
+              ? "Please log in to create notes"
+              : !hasCategorySelected
+                ? "Please select a category to create notes"
+                : `Enter your note here... (${minChars}-${maxChars} chars)`
+          }
+          className="min-h-[150px] resize-y w-full"
           value={noteContent}
           onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => onContentChange(e.target.value)}
-          disabled={isProcessing || !isUserLoggedIn}
+          disabled={isProcessing || !isUserLoggedIn || !hasCategorySelected}
+          aria-label="Note Content Input"
         />
-        <div className="text-sm text-gray-500 text-right w-[90%] mx-auto mt-1">300/{noteContent.length}/10000</div>
-        <div className="mt-2 flex justify-center">
-          <Button
-            onClick={handleSave}
-            disabled={!isButtonEnabled}
-            className={isButtonEnabled ? "bg-blue-600 hover:bg-blue-700 text-white" : "bg-gray-300 text-gray-500"}
-          >
-            {isSaving ? "Saving..." : "Save Note"}
+        <div
+          className={`text-sm text-right ${noteContent.length > maxChars || (noteContent.length > 0 && noteContent.length < minChars) ? "text-destructive" : "text-muted-foreground"}`}
+        >
+          {noteContent.length} / {maxChars}
+        </div>
+        <div className="flex justify-center">
+          <Button onClick={handleSave} disabled={!isButtonEnabled}>
+            {isSaving ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...
+              </>
+            ) : (
+              "Save Note & Get Summary"
+            )}
           </Button>
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 
