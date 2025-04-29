@@ -48,7 +48,8 @@ jobs:
 
   e2e-test:
     name: Run E2E Tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latesti
+    environment: Integration
     needs: lint
 
     steps:
