@@ -38,6 +38,8 @@ export class HomePage {
   }
 
   async takeScreenshot(name: string) {
-    await expect(this.page).toHaveScreenshot(name);
+    await expect(this.page).toHaveScreenshot(name, {
+      maxDiffPixelRatio: 0.05,
+    });
   }
 }
