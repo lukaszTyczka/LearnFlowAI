@@ -8,6 +8,8 @@ test.describe("Authentication", () => {
     // Retrieve credentials from environment variables
     const email = process.env.E2E_LOGIN;
     const password = process.env.E2E_PASSWORD;
+    console.log("Email length: ", email?.length);
+    console.log("Password length: ", password?.length);
 
     if (!email || !password) {
       throw new Error("E2E_LOGIN and E2E_PASSWORD environment variables must be set in .env.test");
