@@ -89,6 +89,14 @@ jobs:
           E2E_LOGIN: ${{ secrets.E2E_LOGIN }}
           E2E_PASSWORD: ${{ secrets.E2E_PASSWORD }}
 
+      - name: Upload Playwright Test Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-test-results
+          path: test-results/
+          retention-days: 7
+
   status-comment:
     name: Post Status Comment
     runs-on: ubuntu-latest
