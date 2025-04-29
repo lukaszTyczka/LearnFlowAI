@@ -115,6 +115,7 @@ export const LoginForm: React.FC = () => {
               required
               disabled={isLoading}
               aria-describedby={error ? formErrorId : undefined}
+              data-testid="email-input"
             />
           </div>
           <div className="space-y-2">
@@ -128,6 +129,7 @@ export const LoginForm: React.FC = () => {
               required
               disabled={isLoading}
               aria-describedby={error ? formErrorId : undefined}
+              data-testid="password-input"
             />
           </div>
           <div className="text-right">
@@ -151,7 +153,7 @@ export const LoginForm: React.FC = () => {
           )}
         </CardContent>
         <CardFooter className="flex flex-col gap-4">
-          <Button type="submit" className="w-full" disabled={isLoading}>
+          <Button type="submit" className="w-full" disabled={isLoading} data-testid="login-button">
             {isLoading ? "Logging in..." : "Login"}
           </Button>
           <div className="text-sm text-center text-muted-foreground">
