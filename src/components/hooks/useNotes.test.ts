@@ -1,8 +1,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { renderHook, act } from "@testing-library/react";
+import { renderHook, act, waitFor } from "@testing-library/react";
 import { useNotes } from "./useNotes";
 import { toast } from "sonner";
 import type { AppUser } from "../../stores/authStore"; // Adjust path if needed
+import type { Note } from "./useNotes"; // Import the Note type
 
 // Mock the toast module
 vi.mock("sonner", () => ({
@@ -10,6 +11,7 @@ vi.mock("sonner", () => ({
     error: vi.fn(),
     success: vi.fn(),
     warning: vi.fn(),
+    loading: vi.fn(() => "mock-toast-id"), // Remove unused _message parameter
   },
 }));
 
@@ -359,4 +361,171 @@ describe("useNotes hook - saveNote method", () => {
     // Final check: content should still be empty
     expect(result.current.noteContent).toBe("");
   });
+});
+
+describe("useNotes Hook", () => {
+  beforeEach(() => {
+    // Reset mocks before each test
+    vi.resetAllMocks();
+    // Default fetch mock (can be overridden in specific tests)
+    mockFetch.mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({ notes: [] }), // Default for loadNotes
+    } as Response);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  // --- Test suite for deleteNote --- //
+  describe("deleteNote Functionality", () => {
+    it("should successfully delete a note and update state", async () => {
+      const note1 = createMockNote("note-1", "Note 1", "completed");
+      const noteToDelete = createMockNote("note-to-delete", "Note 2", "pending");
+      const initialNotesData = { notes: [note1, noteToDelete] };
+
+      // Mock fetch for initial load
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => initialNotesData,
+      } as Response);
+      // Mock fetch specifically for the DELETE call
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        status: 204,
+        json: async () => null,
+      } as Response);
+
+      const { result } = renderHook(() => useNotes(mockUser));
+
+      // Load initial notes
+      await act(async () => {
+        await result.current.loadNotes("some-category-id"); // Load notes first
+      });
+
+      // Wait for state update after loading
+      await waitFor(() => {
+        expect(result.current.notes).toHaveLength(2);
+      });
+
+      // Set the note to be deleted as selected
+      act(() => {
+        result.current.setSelectedNote(noteToDelete);
+      });
+      expect(result.current.selectedNote?.id).toBe("note-to-delete");
+
+      // Call deleteNote
+      let success = false;
+      await act(async () => {
+        success = await result.current.deleteNote("note-to-delete");
+      });
+      expect(success).toBe(true);
+
+      // Assertions
+      // Fetch call 1 (loadNotes), Fetch call 2 (deleteNote)
+      expect(mockFetch).toHaveBeenCalledTimes(2);
+      expect(mockFetch).toHaveBeenNthCalledWith(2, "/api/notes/note-to-delete", { method: "DELETE" });
+      expect(toast.loading).toHaveBeenCalledWith("Deleting note...");
+      expect(toast.success).toHaveBeenCalledWith("Note deleted successfully", { id: "mock-toast-id" }); // Check ID from mock
+      expect(result.current.notes).toHaveLength(1);
+      expect(result.current.notes[0].id).toBe("note-1");
+      expect(result.current.selectedNote).toBeNull();
+    });
+
+    it("should not delete if user is not logged in", async () => {
+      const { result } = renderHook(() => useNotes(null)); // No user
+
+      let success = true; // Assume success initially
+      await act(async () => {
+        success = await result.current.deleteNote("some-note-id");
+      });
+      expect(success).toBe(false);
+
+      expect(mockFetch).not.toHaveBeenCalled();
+      expect(toast.error).toHaveBeenCalledWith("You must be logged in to delete notes");
+    });
+
+    it("should handle API error during deletion", async () => {
+      const note1 = createMockNote("note-1", "Note 1", "completed");
+      const initialNotesData = { notes: [note1] };
+
+      // Mock fetch for initial load
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => initialNotesData,
+      } as Response);
+      // Mock fetch to return an error status for DELETE
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 500,
+        json: async () => ({ error: "Server exploded" }),
+      } as Response);
+
+      const { result } = renderHook(() => useNotes(mockUser));
+
+      // Load initial notes
+      await act(async () => {
+        await result.current.loadNotes("some-category-id");
+      });
+      await waitFor(() => {
+        expect(result.current.notes).toHaveLength(1);
+      });
+
+      let success = true;
+      await act(async () => {
+        success = await result.current.deleteNote("note-1");
+      });
+      expect(success).toBe(false);
+
+      expect(mockFetch).toHaveBeenCalledTimes(2);
+      expect(mockFetch).toHaveBeenNthCalledWith(2, "/api/notes/note-1", { method: "DELETE" });
+      expect(toast.loading).toHaveBeenCalledWith("Deleting note...");
+      expect(toast.error).toHaveBeenCalledWith("Failed to delete note: Server exploded", { id: "mock-toast-id" });
+      expect(result.current.notes).toHaveLength(1); // State should not change on error
+    });
+
+    it("should handle API returning 404 (note not found/access denied)", async () => {
+      // Mock fetch to return 404 for DELETE
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 404,
+        json: async () => ({ error: "Note not found or access denied." }),
+      } as Response);
+
+      const { result } = renderHook(() => useNotes(mockUser));
+
+      // No initial notes needed for this specific scenario, just call delete
+      let success = true;
+      await act(async () => {
+        success = await result.current.deleteNote("non-existent-note");
+      });
+      expect(success).toBe(false);
+
+      expect(mockFetch).toHaveBeenCalledTimes(1);
+      expect(mockFetch).toHaveBeenCalledWith("/api/notes/non-existent-note", { method: "DELETE" });
+      expect(toast.loading).toHaveBeenCalledWith("Deleting note...");
+      expect(toast.error).toHaveBeenCalledWith("Failed to delete note: Note not found or access denied.", {
+        id: "mock-toast-id",
+      });
+    });
+  });
+
+  // Add other test suites for loadNotes, saveNote etc. if needed
+});
+
+// Helper to create a mock Note
+const createMockNote = (id: string, content: string, status: Note["summary_status"]): Note => ({
+  id,
+  content,
+  user_id: mockUser.id,
+  summary_status: status,
+  created_at: new Date().toISOString(),
+  updated_at: new Date().toISOString(),
+  category_id: null,
+  summary: status === "completed" ? `Summary for ${content}` : null,
+  summary_error_message: status === "failed" ? "Mock error" : null,
 });
