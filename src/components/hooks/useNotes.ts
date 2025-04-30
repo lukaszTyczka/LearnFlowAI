@@ -6,7 +6,8 @@ import type { AppUser } from "../../stores/authStore";
 import { supabaseClient } from "../../db/supabase.client";
 import type { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
 
-type Note = Tables<"notes"> & {
+// Export the Note type
+export type Note = Tables<"notes"> & {
   summary_status: "pending" | "processing" | "completed" | "failed";
   summary_error_message?: string | null;
 };
