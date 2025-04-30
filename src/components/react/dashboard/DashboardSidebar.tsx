@@ -51,6 +51,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                       isActive && "font-semibold" // Bold text when active
                     )}
                     onClick={() => onSelectCategory(category.id)}
+                    data-testid={`category-button-${category.name.toLowerCase()}`}
                   >
                     {/* Active indicator */}
                     {isActive && (

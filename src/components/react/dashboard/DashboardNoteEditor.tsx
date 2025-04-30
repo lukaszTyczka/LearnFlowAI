@@ -52,6 +52,7 @@ const DashboardNoteEditor: React.FC<DashboardNoteEditorProps> = ({
           onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => onContentChange(e.target.value)}
           disabled={isProcessing || !isUserLoggedIn || !hasCategorySelected}
           aria-label="Note Content Input"
+          data-testid="note-content-input"
         />
         <div
           className={`text-sm text-right ${noteContent.length > maxChars || (noteContent.length > 0 && noteContent.length < minChars) ? "text-destructive" : "text-muted-foreground"}`}
@@ -59,7 +60,7 @@ const DashboardNoteEditor: React.FC<DashboardNoteEditorProps> = ({
           {noteContent.length} / {maxChars}
         </div>
         <div className="flex justify-center">
-          <Button onClick={handleSave} disabled={!isButtonEnabled}>
+          <Button onClick={handleSave} disabled={!isButtonEnabled} data-testid="save-note-button">
             {isSaving ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...
