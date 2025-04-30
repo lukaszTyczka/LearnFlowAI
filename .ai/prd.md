@@ -42,6 +42,7 @@ Platforma ma na celu rozwiązanie tych problemów poprzez automatyzację procesu
 - FR-022: Przechowywanie wygenerowanego zestawu Q&A w bazie danych, powiązanego z oryginalną notatką.
 - FR-028: Implementacja logiki backendowej aplikacji w języku JavaScript lub TypeScript.
 - FR-029: Podstawowy mechanizm uwierzytelniania użytkownika (logowanie).
+- FR-030: Możliwość usunięcia istniejącej notatki przez użytkownika.
 
 ### MVP (Minimum Viable Product) - Rozszerzenie
 
@@ -196,9 +197,20 @@ Następujące funkcje i formaty są wyraźnie wyłączone z zakresu MVP:
 - Tytuł: Konfiguracja klucza API OpenRouter
 - Opis: Jako użytkownik, chcę móc skonfigurować klucz API dla OpenRouter, aby aplikacja mogła korzystać z modeli AI za jego pośrednictwem i aby koszty były powiązane z moim kontem.
 - Kryteria akceptacji:
+
   - W ustawieniach aplikacji istnieje pole do wprowadzenia klucza API OpenRouter.
   - Klucz API jest bezpiecznie przechowywany.
   - Aplikacja wykorzystuje podany klucz do komunikacji z API OpenRouter.
+
+- ID: US-014
+- Tytuł: Usuwanie notatki
+- Opis: Jako użytkownik, chcę mieć możliwość usunięcia notatki, której już nie potrzebuję, aby utrzymać porządek w moich materiałach.
+- Kryteria akceptacji:
+  - W interfejsie, przy każdej notatce (lub w widoku szczegółów notatki) widoczna jest opcja "Usuń".
+  - Po wybraniu opcji "Usuń" system prosi o potwierdzenie (opcjonalnie, ale zalecane).
+  - Po potwierdzeniu system usuwa notatkę wraz z powiązanymi danymi (podsumowanie, kategoria, Q&A, oceny) z bazy danych.
+  - Usunięta notatka nie jest już widoczna na liście historii.
+  - Użytkownik może usunąć tylko własne notatki.
 
 ## 6. Metryki sukcesu
 
