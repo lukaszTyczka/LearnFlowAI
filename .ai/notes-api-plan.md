@@ -2,7 +2,7 @@
 
 Ten dokument opisuje punkty końcowe API do zarządzania notatkami w backendzie Astro, używane przez komponenty frontendowe React.
 
-**Odniesienie:** @astro-api-guidelines.mdc, @prd.md (US-006, US-008)
+**Odniesienie:** @astro-api-guidelines.mdc, @prd.md (US-006, US-008, FR-030, US-014)
 
 ## Punkty końcowe (Endpoints)
 
@@ -78,3 +78,29 @@ Ten dokument opisuje punkty końcowe API do zarządzania notatkami w backendzie 
   4.  Obsłuż błędy (w tym nieznalezienie notatki - sprawdź, czy `note` jest null, co oznacza, że albo nie istnieje, albo użytkownik jej nie posiada z powodu RLS).
   5.  Zwróć szczegóły notatki (status 200), Nie znaleziono (status 404) lub inną odpowiedź błędu.
 - **Uwierzytelnianie:** Wymaga aktywnej sesji.
+
+### 4. Usuń Notatkę po ID
+
+- **Ścieżka:** `DELETE /api/notes/[id]`
+- **Opis:** Usuwa konkretną notatkę należącą do zalogowanego użytkownika.
+- **Parametry URL:** `id` (UUID notatki).
+- **Logika handlera (`src/pages/api/notes/[id].ts` - DELETE):**
+  1.  Zweryfikuj uwierzytelnienie użytkownika (sprawdź `Astro.locals.user`). Zwróć 401 (Unauthorized), jeśli nie jest zalogowany.
+  2.  Wyodrębnij `id` z `Astro.params`. Sprawdź, czy `id` jest poprawnym formatem UUID. Jeśli nie, zwróć 400 (Bad Request).
+  3.  Wywołaj klienta serwerowego Supabase, aby usunąć notatkę o podanym `id`.
+      - **Kluczowe:** RLS (Row Level Security) skonfigurowane na tabeli `notes` automatycznie zapewnia, że użytkownik może usunąć tylko _własną_ notatkę. Zapytanie `DELETE` zakończy się niepowodzeniem lub nie usunie żadnych wierszy, jeśli użytkownik nie jest właścicielem notatki o danym ID.
+      - **Usuwanie kaskadowe:** Zgodnie z migracją `20240417094500_create_tables.sql`, usunięcie notatki spowoduje kaskadowe usunięcie powiązanych `qa_sets` i `questions` dzięki definicji kluczy obcych z `ON DELETE CASCADE`.
+      ```typescript
+      // Przykładowe zapytanie Supabase
+      const { error, count } = await locals.supabase.from("notes").delete().eq("id", id); // RLS zajmie się sprawdzeniem user_id
+      ```
+  4.  Obsłuż potencjalne błędy bazy danych (np. `error` nie jest null). Zwróć 500 (Internal Server Error).
+  5.  Sprawdź `count` - jeśli wynosi 0, oznacza to, że notatka o podanym ID nie została znaleziona lub użytkownik nie miał uprawnień do jej usunięcia (ze względu na RLS). W takim przypadku zwróć 404 (Not Found).
+  6.  Jeśli usunięcie powiodło się (`count > 0`), zwróć status 204 (No Content).
+- **Uwierzytelnianie:** Wymaga aktywnej sesji.
+- **Odpowiedzi:**
+  - `204 No Content`: Notatka pomyślnie usunięta.
+  - `401 Unauthorized`: Użytkownik nie jest zalogowany.
+  - `400 Bad Request`: Nieprawidłowy format ID notatki.
+  - `404 Not Found`: Notatka o podanym ID nie istnieje lub użytkownik nie ma do niej dostępu.
+  - `500 Internal Server Error`: Błąd podczas operacji na bazie danych.
