@@ -44,6 +44,7 @@ const DashboardReact: React.FC<DashboardProps> = ({ initialCategories = [] }) =>
     isSaving,
     loadNotes,
     saveNote,
+    deleteNote,
   } = useNotes(user);
 
   // Load notes when category changes
@@ -83,6 +84,11 @@ const DashboardReact: React.FC<DashboardProps> = ({ initialCategories = [] }) =>
     setSelectedNote(null);
   };
 
+  // Define the delete handler
+  const handleNoteDelete = async (noteId: string) => {
+    await deleteNote(noteId);
+  };
+
   return (
     // Removed outer div and DashboardTopBar.
     // BaseLayout provides the header and flex context.
@@ -114,7 +120,7 @@ const DashboardReact: React.FC<DashboardProps> = ({ initialCategories = [] }) =>
           {/* Notes List / Note Details */}
           <div className="flex-1">
             {selectedNote ? (
-              <DashboardNoteDetail note={selectedNote} onBack={handleBackToNotesList} />
+              <DashboardNoteDetail note={selectedNote} onBack={handleBackToNotesList} onNoteDelete={handleNoteDelete} />
             ) : (
               <DashboardNotesList
                 notes={notes}
@@ -123,6 +129,7 @@ const DashboardReact: React.FC<DashboardProps> = ({ initialCategories = [] }) =>
                 isLoading={isLoadingNotes}
                 isUserLoggedIn={hasMounted && !!user}
                 onNoteSelect={handleNoteSelect}
+                onNoteDelete={handleNoteDelete}
               />
             )}
           </div>

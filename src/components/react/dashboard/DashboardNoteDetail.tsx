@@ -2,7 +2,7 @@ import React from "react";
 import { Button } from "../../ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../ui/card";
 import type { Tables } from "../../../db/database.types";
-import { Loader2, AlertCircle, RefreshCcw, ArrowLeft } from "lucide-react";
+import { Loader2, AlertCircle, RefreshCcw, ArrowLeft, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 type Note = Tables<"notes"> & {
@@ -13,6 +13,7 @@ type Note = Tables<"notes"> & {
 interface DashboardNoteDetailProps {
   note: Note;
   onBack: () => void;
+  onNoteDelete: (noteId: string) => void;
 }
 
 const SummarySection: React.FC<{ note: Note }> = ({ note }) => {
@@ -68,13 +69,25 @@ const SummarySection: React.FC<{ note: Note }> = ({ note }) => {
   );
 };
 
-const DashboardNoteDetail: React.FC<DashboardNoteDetailProps> = ({ note, onBack }) => {
+const DashboardNoteDetail: React.FC<DashboardNoteDetailProps> = ({ note, onBack, onNoteDelete }) => {
+  const handleDeleteClick = () => {
+    if (window.confirm("Are you sure you want to delete this note?")) {
+      onNoteDelete(note.id);
+    }
+  };
+
   return (
     <div className="space-y-6">
-      <Button variant="outline" onClick={onBack} className="self-start">
-        <ArrowLeft className="mr-2 h-4 w-4" />
-        Back to List
-      </Button>
+      <div className="flex justify-between items-center">
+        <Button variant="outline" onClick={onBack} className="self-start">
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back to List
+        </Button>
+        <Button variant="outline" onClick={handleDeleteClick} className="self-start" aria-label="Delete note">
+          <Trash2 className="mr-2 h-4 w-4" />
+          Delete Note
+        </Button>
+      </div>
       <Card>
         <CardHeader>
           <CardTitle className="text-lg font-semibold">Original Note</CardTitle>
