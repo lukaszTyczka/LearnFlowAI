@@ -1,7 +1,8 @@
 import React from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader } from "../../ui/card";
 import type { Tables } from "../../../db/database.types";
-import { Loader2, AlertCircle } from "lucide-react";
+import { Loader2, AlertCircle, Trash2 } from "lucide-react";
+import { Button } from "../../ui/button";
 
 type Note = Tables<"notes"> & {
   summary_status: "pending" | "processing" | "completed" | "failed";
@@ -15,6 +16,7 @@ interface DashboardNotesListProps {
   isLoading: boolean;
   isUserLoggedIn: boolean;
   onNoteSelect: (note: Note) => void;
+  onNoteDelete: (noteId: string) => void;
 }
 
 const SummaryStatus: React.FC<{ note: Note }> = ({ note }) => {
@@ -50,8 +52,16 @@ const DashboardNotesList: React.FC<DashboardNotesListProps> = ({
   isLoading,
   isUserLoggedIn,
   onNoteSelect,
+  onNoteDelete,
 }) => {
   const selectedCategoryName = selectedCategoryId ? categories.find((c) => c.id === selectedCategoryId)?.name : null;
+
+  const handleDeleteClick = (event: React.MouseEvent<HTMLButtonElement>, noteId: string) => {
+    event.stopPropagation();
+    if (window.confirm("Are you sure you want to delete this note?")) {
+      onNoteDelete(noteId);
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -69,18 +79,31 @@ const DashboardNotesList: React.FC<DashboardNotesListProps> = ({
             {notes.map((note) => (
               <Card
                 key={note.id}
-                className="flex flex-col cursor-pointer border bg-card hover:shadow-md transition-shadow duration-150"
-                onClick={() => onNoteSelect(note)}
-                tabIndex={0}
-                onKeyDown={(e) => e.key === "Enter" && onNoteSelect(note)}
+                className="flex flex-col border bg-card hover:shadow-md transition-shadow duration-150 relative group"
               >
-                <CardHeader className="pb-2 pt-4 px-4">
+                <div
+                  className="absolute inset-0 cursor-pointer z-0"
+                  onClick={() => onNoteSelect(note)}
+                  tabIndex={-1}
+                  onKeyDown={(e) => e.key === "Enter" && onNoteSelect(note)}
+                  aria-hidden="true"
+                ></div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute top-1 right-1 z-10 h-7 w-7 transition-opacity text-muted-foreground hover:text-destructive"
+                  onClick={(e) => handleDeleteClick(e, note.id)}
+                  aria-label="Delete note"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+                <CardHeader className="pb-2 pt-4 px-4 cursor-pointer z-10" onClick={() => onNoteSelect(note)}>
                   <CardDescription>{new Date(note.created_at).toLocaleDateString()}</CardDescription>
                 </CardHeader>
-                <CardContent className="flex-grow pb-3 px-4">
+                <CardContent className="flex-grow pb-3 px-4 cursor-pointer z-10" onClick={() => onNoteSelect(note)}>
                   <p className="line-clamp-4 text-sm text-card-foreground">{note.content}</p>
                 </CardContent>
-                <CardFooter className="pb-3 px-4">
+                <CardFooter className="pb-3 px-4 z-10">
                   <SummaryStatus note={note} />
                 </CardFooter>
               </Card>

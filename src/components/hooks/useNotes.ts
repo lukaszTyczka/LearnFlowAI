@@ -161,6 +161,48 @@ export function useNotes(user: AppUser | null) {
     [noteContent, user]
   );
 
+  const deleteNote = useCallback(
+    async (noteId: string): Promise<boolean> => {
+      if (!user) {
+        toast.error("You must be logged in to delete notes");
+        return false;
+      }
+
+      // Optionally show a loading toast or disable UI elements
+      const deleteToastId = toast.loading("Deleting note...");
+      try {
+        const response = await fetch(`/api/notes/${noteId}`, {
+          method: "DELETE",
+        });
+
+        if (response.status === 204) {
+          toast.success("Note deleted successfully", { id: deleteToastId });
+          setNotes((currentNotes) => currentNotes.filter((note) => note.id !== noteId));
+          // If the deleted note was selected, clear the selection
+          if (selectedNote?.id === noteId) {
+            setSelectedNote(null);
+          }
+          return true;
+        } else {
+          // Handle non-204 errors
+          let errorMsg = "Failed to delete note";
+          try {
+            const errorData = await response.json();
+            errorMsg = errorData.error || errorMsg;
+          } catch {
+            /* Ignore JSON parsing error if body is empty */
+          }
+          throw new Error(errorMsg);
+        }
+      } catch (err: unknown) {
+        const errorMessage = err instanceof Error ? err.message : "An unexpected error occurred";
+        toast.error(`Failed to delete note: ${errorMessage}`, { id: deleteToastId });
+        return false;
+      }
+    },
+    [user, selectedNote]
+  ); // Include selectedNote in dependencies
+
   return {
     notes,
     isLoading,
@@ -171,5 +213,6 @@ export function useNotes(user: AppUser | null) {
     isSaving,
     loadNotes,
     saveNote,
+    deleteNote, // Return the new function
   };
 }
