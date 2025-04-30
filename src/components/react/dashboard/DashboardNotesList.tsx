@@ -80,6 +80,7 @@ const DashboardNotesList: React.FC<DashboardNotesListProps> = ({
               <Card
                 key={note.id}
                 className="flex flex-col border bg-card hover:shadow-md transition-shadow duration-150 relative group"
+                data-testid="note-card"
               >
                 <div
                   className="absolute inset-0 cursor-pointer z-0"
@@ -94,6 +95,7 @@ const DashboardNotesList: React.FC<DashboardNotesListProps> = ({
                   className="absolute top-1 right-1 z-10 h-7 w-7 transition-opacity text-muted-foreground hover:text-destructive"
                   onClick={(e) => handleDeleteClick(e, note.id)}
                   aria-label="Delete note"
+                  data-testid="delete-note-button"
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
