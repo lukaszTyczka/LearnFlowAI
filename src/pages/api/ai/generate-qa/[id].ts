@@ -1,20 +1,11 @@
 import type { APIRoute } from "astro";
-import { OpenRouterService } from "../../../../lib/api/openrouter/openRouter.service";
-import { z } from "zod";
-
-// Output validation schema for structured responses
-const QAResponseSchema = z.array(
-  z.object({
-    question: z.string(),
-    options: z.object({
-      A: z.string(),
-      B: z.string(),
-      C: z.string(),
-      D: z.string(),
-    }),
-    correct_option: z.enum(["A", "B", "C", "D"]),
-  })
-);
+import {
+  OpenRouterService,
+  OpenRouterApiError,
+  JsonParsingError,
+} from "../../../../lib/api/openrouter/openRouter.service";
+import { GeneratedQASchema, type GeneratedQA } from "../../../../lib/validators/aiValidators";
+import type { z } from "zod";
 
 // Custom error class for better error handling
 class GenerateQAError extends Error {
@@ -118,11 +109,18 @@ export const POST: APIRoute = async ({ params, locals }) => {
     const systemMessage = `You are a professional educator and question generator.
 Create multiple choice questions (ABCD format) based on the provided text content.
 Each question should:
-1. Test understanding of key concepts
+1. Test understanding of key concepts and important details from the text
 2. Have exactly 4 options (A, B, C, D)
 3. Have one clear correct answer
 4. Be challenging but fair
 5. Be clear and unambiguous
+6. Cover different aspects of the content to ensure comprehensive understanding
+7. Use proper grammar and professional language
+8. Avoid trick questions or deliberately misleading options
+9. Include at least one question that tests higher-order thinking skills
+
+Generate at least 3 questions, but no more than 5 questions.
+Each incorrect option should be plausible but clearly incorrect when compared to the text.
 
 Format each question as a JSON object with:
 - question: the question text
@@ -139,8 +137,8 @@ Format each question as a JSON object with:
           ],
           temperature: 0.7,
         },
-        QAResponseSchema,
-        "generate_multiple_choice_questions"
+        GeneratedQASchema,
+        "generate_qa"
       );
 
       // Get the parsed and validated response
@@ -166,7 +164,7 @@ Format each question as a JSON object with:
 
       // Then insert questions linked to the QA set
       const { error: qaError } = await supabase.from("questions").insert(
-        result.map((qa) => ({
+        (result as z.infer<typeof GeneratedQASchema>).map((qa: GeneratedQA) => ({
           qa_set_id: qaSet.id,
           question_text: qa.question,
           option_a: qa.options.A,
@@ -213,10 +211,28 @@ Format each question as a JSON object with:
       );
     } catch (aiError) {
       // Handle AI-specific errors
+      if (aiError instanceof OpenRouterApiError) {
+        throw new GenerateQAError(
+          `OpenRouter API Error: ${aiError.message}`,
+          aiError.status || 500,
+          aiError.status === 429
+            ? "AI service is currently busy. Please try again in a few minutes."
+            : "Failed to generate Q&A. The AI service encountered an error."
+        );
+      }
+
+      if (aiError instanceof JsonParsingError) {
+        throw new GenerateQAError(
+          `AI response parsing error: ${aiError.message}`,
+          500,
+          "Failed to process AI response. Please try again."
+        );
+      }
+
       throw new GenerateQAError(
         `AI Q&A generation failed: ${aiError instanceof Error ? aiError.message : "Unknown error"}`,
         500,
-        "Failed to generate Q&A. The AI model encountered an error."
+        "Failed to generate Q&A. Please try again later."
       );
     }
   } catch (error) {
