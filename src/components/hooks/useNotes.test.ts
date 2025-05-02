@@ -528,4 +528,6 @@ const createMockNote = (id: string, content: string, status: Note["summary_statu
   category_id: null,
   summary: status === "completed" ? `Summary for ${content}` : null,
   summary_error_message: status === "failed" ? "Mock error" : null,
+  qa_status: "idle",
+  qa_error_message: null,
 });
