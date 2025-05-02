@@ -119,7 +119,7 @@ Each question should:
 8. Avoid trick questions or deliberately misleading options
 9. Include at least one question that tests higher-order thinking skills
 
-Generate at least 3 questions, but no more than 5 questions.
+Generate at least 3 questions.
 Each incorrect option should be plausible but clearly incorrect when compared to the text.
 
 Format each question as a JSON object with:
