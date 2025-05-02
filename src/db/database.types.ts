@@ -50,9 +50,11 @@ export interface Database {
           content: string;
           created_at: string;
           id: string;
+          qa_error_message: string | null;
+          qa_status: string;
           summary: string | null;
-          summary_status: "pending" | "processing" | "completed" | "failed";
           summary_error_message: string | null;
+          summary_status: Database["public"]["Enums"]["summary_status_type"];
           updated_at: string;
           user_id: string;
         };
@@ -61,9 +63,11 @@ export interface Database {
           content: string;
           created_at?: string;
           id?: string;
+          qa_error_message?: string | null;
+          qa_status?: string;
           summary?: string | null;
-          summary_status?: "pending" | "processing" | "completed" | "failed";
           summary_error_message?: string | null;
+          summary_status?: Database["public"]["Enums"]["summary_status_type"];
           updated_at?: string;
           user_id: string;
         };
@@ -72,9 +76,11 @@ export interface Database {
           content?: string;
           created_at?: string;
           id?: string;
+          qa_error_message?: string | null;
+          qa_status?: string;
           summary?: string | null;
-          summary_status?: "pending" | "processing" | "completed" | "failed";
           summary_error_message?: string | null;
+          summary_status?: Database["public"]["Enums"]["summary_status_type"];
           updated_at?: string;
           user_id?: string;
         };
@@ -119,25 +125,37 @@ export interface Database {
       };
       questions: {
         Row: {
-          answer_text: string;
+          correct_option: string;
           created_at: string;
           id: string;
+          option_a: string;
+          option_b: string;
+          option_c: string;
+          option_d: string;
           qa_set_id: string;
           question_text: string;
           updated_at: string;
         };
         Insert: {
-          answer_text: string;
+          correct_option: string;
           created_at?: string;
           id?: string;
+          option_a: string;
+          option_b: string;
+          option_c: string;
+          option_d: string;
           qa_set_id: string;
           question_text: string;
           updated_at?: string;
         };
         Update: {
-          answer_text?: string;
+          correct_option?: string;
           created_at?: string;
           id?: string;
+          option_a?: string;
+          option_b?: string;
+          option_c?: string;
+          option_d?: string;
           qa_set_id?: string;
           question_text?: string;
           updated_at?: string;
@@ -155,7 +173,9 @@ export interface Database {
     };
     Views: Record<never, never>;
     Functions: Record<never, never>;
-    Enums: Record<never, never>;
+    Enums: {
+      summary_status_type: "pending" | "processing" | "completed" | "failed";
+    };
     CompositeTypes: Record<never, never>;
   };
 }
@@ -260,6 +280,8 @@ export const Constants = {
     Enums: {},
   },
   public: {
-    Enums: {},
+    Enums: {
+      summary_status_type: ["pending", "processing", "completed", "failed"],
+    },
   },
 } as const;
