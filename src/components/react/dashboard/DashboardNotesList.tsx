@@ -1,13 +1,9 @@
 import React from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader } from "../../ui/card";
 import type { Tables } from "../../../db/database.types";
+import type { Note } from "../../hooks/useNotes";
 import { Loader2, AlertCircle, Trash2 } from "lucide-react";
 import { Button } from "../../ui/button";
-
-type Note = Tables<"notes"> & {
-  summary_status: "pending" | "processing" | "completed" | "failed";
-  summary_error_message?: string | null;
-};
 
 interface DashboardNotesListProps {
   notes: Note[];

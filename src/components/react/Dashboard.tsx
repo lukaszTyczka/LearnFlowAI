@@ -5,7 +5,7 @@ import type { Tables } from "../../db/database.types";
 
 // Import custom hooks
 import { useCategories } from "../hooks/useCategories";
-import { useNotes } from "../hooks/useNotes";
+import { useNotes, type Note } from "../hooks/useNotes";
 
 // Import the extracted components
 import DashboardSidebar from "./dashboard/DashboardSidebar";
@@ -45,6 +45,7 @@ const DashboardReact: React.FC<DashboardProps> = ({ initialCategories = [] }) =>
     loadNotes,
     saveNote,
     deleteNote,
+    generateQA,
   } = useNotes(user);
 
   // Load notes when category changes
@@ -76,7 +77,7 @@ const DashboardReact: React.FC<DashboardProps> = ({ initialCategories = [] }) =>
     setNoteContent(content);
   };
 
-  const handleNoteSelect = (note: Tables<"notes">) => {
+  const handleNoteSelect = (note: Note) => {
     setSelectedNote(note);
   };
 
@@ -87,6 +88,11 @@ const DashboardReact: React.FC<DashboardProps> = ({ initialCategories = [] }) =>
   // Define the delete handler
   const handleNoteDelete = async (noteId: string) => {
     await deleteNote(noteId);
+  };
+
+  // Add handler for Q&A generation
+  const handleGenerateQA = async (noteId: string) => {
+    await generateQA(noteId);
   };
 
   return (
@@ -120,7 +126,12 @@ const DashboardReact: React.FC<DashboardProps> = ({ initialCategories = [] }) =>
           {/* Notes List / Note Details */}
           <div className="flex-1">
             {selectedNote ? (
-              <DashboardNoteDetail note={selectedNote} onBack={handleBackToNotesList} onNoteDelete={handleNoteDelete} />
+              <DashboardNoteDetail
+                note={selectedNote}
+                onBack={handleBackToNotesList}
+                onNoteDelete={handleNoteDelete}
+                onGenerateQA={handleGenerateQA}
+              />
             ) : (
               <DashboardNotesList
                 notes={notes}

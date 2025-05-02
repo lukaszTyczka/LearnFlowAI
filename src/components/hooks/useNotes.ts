@@ -10,6 +10,20 @@ import type { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
 export type Note = Tables<"notes"> & {
   summary_status: "pending" | "processing" | "completed" | "failed";
   summary_error_message?: string | null;
+  qa_status: "idle" | "processing" | "completed" | "failed";
+  qa_error_message?: string | null;
+  qa_set?: {
+    id: string;
+    questions: {
+      id: string;
+      question_text: string;
+      option_a: string;
+      option_b: string;
+      option_c: string;
+      option_d: string;
+      correct_option: string;
+    }[];
+  } | null;
 };
 
 export function useNotes(user: AppUser | null) {
@@ -41,6 +55,8 @@ export function useNotes(user: AppUser | null) {
               Database["public"]["Tables"]["notes"]["Row"] & {
                 summary_status: Note["summary_status"];
                 summary_error_message?: string | null;
+                qa_status: Note["qa_status"];
+                qa_error_message?: string | null;
               }
             >
           ) => {
@@ -52,6 +68,13 @@ export function useNotes(user: AppUser | null) {
               toast.success("Note summary generated successfully");
             } else if (updatedNote.summary_status === "failed") {
               toast.error(`Summary generation failed: ${updatedNote.summary_error_message || "Unknown error"}`);
+            }
+
+            // Show appropriate toast based on Q&A status
+            if (updatedNote.qa_status === "completed") {
+              toast.success("Q&A set generated successfully");
+            } else if (updatedNote.qa_status === "failed") {
+              toast.error(`Q&A generation failed: ${updatedNote.qa_error_message || "Unknown error"}`);
             }
           }
         )
@@ -204,6 +227,34 @@ export function useNotes(user: AppUser | null) {
     [user, selectedNote]
   ); // Include selectedNote in dependencies
 
+  const generateQA = useCallback(
+    async (noteId: string): Promise<boolean> => {
+      if (!user) {
+        toast.error("You must be logged in to generate Q&A");
+        return false;
+      }
+
+      try {
+        const response = await fetch(`/api/ai/generate-qa/${noteId}`, {
+          method: "POST",
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || "Failed to start Q&A generation");
+        }
+
+        toast.success("Q&A generation started");
+        return true;
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : "Failed to start Q&A generation";
+        toast.error(message);
+        return false;
+      }
+    },
+    [user]
+  );
+
   return {
     notes,
     isLoading,
@@ -214,6 +265,7 @@ export function useNotes(user: AppUser | null) {
     isSaving,
     loadNotes,
     saveNote,
-    deleteNote, // Return the new function
+    deleteNote,
+    generateQA,
   };
 }

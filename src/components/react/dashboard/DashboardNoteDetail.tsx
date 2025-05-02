@@ -2,18 +2,33 @@ import React from "react";
 import { Button } from "../../ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../ui/card";
 import type { Tables } from "../../../db/database.types";
-import { Loader2, AlertCircle, RefreshCcw, ArrowLeft, Trash2 } from "lucide-react";
+import { Loader2, AlertCircle, RefreshCcw, ArrowLeft, Trash2, Brain } from "lucide-react";
 import { toast } from "sonner";
 
 type Note = Tables<"notes"> & {
   summary_status: "pending" | "processing" | "completed" | "failed";
   summary_error_message?: string | null;
+  qa_status: "idle" | "processing" | "completed" | "failed";
+  qa_error_message?: string | null;
+  qa_set?: {
+    id: string;
+    questions: {
+      id: string;
+      question_text: string;
+      option_a: string;
+      option_b: string;
+      option_c: string;
+      option_d: string;
+      correct_option: string;
+    }[];
+  } | null;
 };
 
 interface DashboardNoteDetailProps {
   note: Note;
   onBack: () => void;
   onNoteDelete: (noteId: string) => void;
+  onGenerateQA: (noteId: string) => void;
 }
 
 const SummarySection: React.FC<{ note: Note }> = ({ note }) => {
@@ -69,7 +84,78 @@ const SummarySection: React.FC<{ note: Note }> = ({ note }) => {
   );
 };
 
-const DashboardNoteDetail: React.FC<DashboardNoteDetailProps> = ({ note, onBack, onNoteDelete }) => {
+const QASection: React.FC<{ note: Note; onGenerateQA: (noteId: string) => void }> = ({ note, onGenerateQA }) => {
+  const handleGenerateQA = () => {
+    onGenerateQA(note.id);
+  };
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+        <CardTitle className="text-lg font-semibold">Questions & Answers</CardTitle>
+        {(note.qa_status === "idle" || note.qa_status === "failed") && (
+          <Button variant="ghost" size="sm" onClick={handleGenerateQA} className="h-8 px-2">
+            <Brain className="h-4 w-4 mr-2" />
+            {note.qa_status === "failed" ? "Retry" : "Generate Q&A"}
+          </Button>
+        )}
+      </CardHeader>
+      <CardContent>
+        {note.qa_status === "processing" && (
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            <span>Generating Questions & Answers...</span>
+          </div>
+        )}
+        {note.qa_status === "failed" && (
+          <div className="flex items-center gap-2 text-destructive">
+            <AlertCircle className="h-4 w-4" />
+            <span>Failed: {note.qa_error_message || "Unknown error"}</span>
+          </div>
+        )}
+        {note.qa_status === "completed" && note.qa_set?.questions && (
+          <div className="space-y-6">
+            {note.qa_set.questions.map((question, index) => (
+              <div key={question.id} className="space-y-2">
+                <p className="font-medium">
+                  {index + 1}. {question.question_text}
+                </p>
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                  {["A", "B", "C", "D"].map((option) => {
+                    const optionText = question[`option_${option.toLowerCase()}` as keyof typeof question];
+                    const isCorrect = question.correct_option === option;
+
+                    return (
+                      <div
+                        key={option}
+                        className={`rounded-md border p-3 ${
+                          isCorrect ? "border-green-500 bg-green-50 dark:bg-green-900/10" : "border-border"
+                        }`}
+                      >
+                        <span className="font-medium">{option}.</span> {optionText}
+                        {isCorrect && (
+                          <span className="ml-2 text-sm text-green-600 dark:text-green-400">(Correct)</span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+        {note.qa_status === "completed" && !note.qa_set?.questions && (
+          <p className="text-sm text-muted-foreground">No questions generated.</p>
+        )}
+        {note.qa_status === "idle" && (
+          <p className="text-sm text-muted-foreground">Click the button above to generate questions.</p>
+        )}
+      </CardContent>
+    </Card>
+  );
+};
+
+const DashboardNoteDetail: React.FC<DashboardNoteDetailProps> = ({ note, onBack, onNoteDelete, onGenerateQA }) => {
   const handleDeleteClick = () => {
     if (window.confirm("Are you sure you want to delete this note?")) {
       onNoteDelete(note.id);
@@ -98,6 +184,7 @@ const DashboardNoteDetail: React.FC<DashboardNoteDetailProps> = ({ note, onBack,
         </CardContent>
       </Card>
       <SummarySection note={note} />
+      <QASection note={note} onGenerateQA={onGenerateQA} />
     </div>
   );
 };
