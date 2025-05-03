@@ -68,7 +68,7 @@ Ten dokument opisuje punkty końcowe API do zarządzania notatkami w backendzie 
           `
           id, content, summary, created_at,
           category:categories(id, name),
-          qa_sets(id, questions(id, question_text, answer_text))
+          qa_sets(id, questions(id, question_text, option_a, option_b, option_c, option_d, correct_option))
         `
         )
         .eq("id", id)

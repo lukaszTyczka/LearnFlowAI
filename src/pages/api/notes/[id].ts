@@ -28,12 +28,16 @@ export const GET: APIRoute = async ({ params, locals }) => {
       .from("notes")
       .select(
         `
-        id, content, summary, created_at,
+        id, content, summary, created_at, updated_at, user_id, qa_status, qa_error_message, summary_status, summary_error_message,
         category:categories(id, name),
-        qa_sets(id, questions(id, question_text, answer_text))
+        qa_sets(
+          id, created_at,
+          questions(id, question_text, option_a, option_b, option_c, option_d, correct_option)
+        )
       `
       )
       .eq("id", validId)
+      .eq("user_id", locals.user.id)
       .maybeSingle();
 
     if (error) {

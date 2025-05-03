@@ -1,28 +1,9 @@
 import React from "react";
 import { Button } from "../../ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../ui/card";
-import type { Tables } from "../../../db/database.types";
 import { Loader2, AlertCircle, RefreshCcw, ArrowLeft, Trash2, Brain } from "lucide-react";
 import { toast } from "sonner";
-
-type Note = Tables<"notes"> & {
-  summary_status: "pending" | "processing" | "completed" | "failed";
-  summary_error_message?: string | null;
-  qa_status: "idle" | "processing" | "completed" | "failed";
-  qa_error_message?: string | null;
-  qa_set?: {
-    id: string;
-    questions: {
-      id: string;
-      question_text: string;
-      option_a: string;
-      option_b: string;
-      option_c: string;
-      option_d: string;
-      correct_option: string;
-    }[];
-  } | null;
-};
+import type { Note } from "@/components/hooks/useNotes";
 
 interface DashboardNoteDetailProps {
   note: Note;
@@ -113,9 +94,9 @@ const QASection: React.FC<{ note: Note; onGenerateQA: (noteId: string) => void }
             <span>Failed: {note.qa_error_message || "Unknown error"}</span>
           </div>
         )}
-        {note.qa_status === "completed" && note.qa_set?.questions && (
+        {note.qa_status === "completed" && note.qa_sets?.[0]?.questions && (
           <div className="space-y-6">
-            {note.qa_set.questions.map((question, index) => (
+            {note.qa_sets[0].questions.map((question, index) => (
               <div key={question.id} className="space-y-2">
                 <p className="font-medium">
                   {index + 1}. {question.question_text}
@@ -144,7 +125,7 @@ const QASection: React.FC<{ note: Note; onGenerateQA: (noteId: string) => void }
             ))}
           </div>
         )}
-        {note.qa_status === "completed" && !note.qa_set?.questions && (
+        {note.qa_status === "completed" && !note.qa_sets?.[0]?.questions && (
           <p className="text-sm text-muted-foreground">No questions generated.</p>
         )}
         {note.qa_status === "idle" && (

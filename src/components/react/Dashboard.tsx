@@ -108,22 +108,17 @@ const DashboardReact: React.FC<DashboardProps> = ({ initialCategories = [] }) =>
         onSelectCategory={handleCategorySelect}
       />
 
-      {/* Main Content Area - adjusted to be direct child of flex container */}
       <div className="flex-1 flex flex-col overflow-y-auto">
-        {/* Added ScrollArea for potentially long content */}
         <div className="p-4 md:p-6 lg:p-8 space-y-6 flex-grow">
-          {/* Note Editor */}
           <DashboardNoteEditor
             noteContent={noteContent}
             isSaving={isSaving}
-            // Use hasMounted to prevent hydration mismatch for user check
             isUserLoggedIn={hasMounted && !!user}
             hasCategorySelected={!!selectedCategoryId}
             onContentChange={handleNoteContentChange}
             onSave={handleSaveNote}
           />
 
-          {/* Notes List / Note Details */}
           <div className="flex-1">
             {selectedNote ? (
               <DashboardNoteDetail

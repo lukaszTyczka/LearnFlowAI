@@ -12,18 +12,24 @@ export type Note = Tables<"notes"> & {
   summary_error_message?: string | null;
   qa_status: "idle" | "processing" | "completed" | "failed";
   qa_error_message?: string | null;
-  qa_set?: {
-    id: string;
-    questions: {
-      id: string;
-      question_text: string;
-      option_a: string;
-      option_b: string;
-      option_c: string;
-      option_d: string;
-      correct_option: string;
-    }[];
-  } | null;
+  content?: string | null;
+  summary?: string | null;
+  qa_sets?:
+    | [
+        {
+          id: string;
+          questions: {
+            id: string;
+            question_text: string;
+            option_a: string;
+            option_b: string;
+            option_c: string;
+            option_d: string;
+            correct_option: string;
+          }[];
+        },
+      ]
+    | null;
 };
 
 export function useNotes(user: AppUser | null) {

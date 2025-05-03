@@ -21,7 +21,16 @@ export const GET: APIRoute = async ({ url, locals }) => {
   try {
     const { data: notes, error } = await supabase
       .from("notes")
-      .select("*") // Select specific fields if needed
+      .select(
+        `
+        id, content, summary, created_at, updated_at, user_id, qa_status, qa_error_message, summary_status, summary_error_message,
+        category:categories(id, name),
+        qa_sets(
+          id, created_at,
+          questions(id, question_text, option_a, option_b, option_c, option_d, correct_option)
+        )
+      `
+      )
       .eq("user_id", user.id)
       .eq("category_id", categoryId)
       .order("created_at", { ascending: false });
