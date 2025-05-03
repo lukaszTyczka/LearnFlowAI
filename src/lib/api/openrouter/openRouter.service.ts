@@ -110,7 +110,7 @@ export class OpenRouterService {
       baseURL?: string;
     } = {}
   ) {
-    this.apiKey = config.apiKey || import.meta.env.OPENROUTER_API_KEY;
+    this.apiKey = config.apiKey || import.meta.env.OPENROUTER_API_KEY || process.env.OPENROUTER_API_KEY;
     if (!this.apiKey) {
       throw new Error("OpenRouter API Key is not configured");
     }
