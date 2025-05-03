@@ -15,5 +15,10 @@ export default defineConfig({
     ssr: {
       external: ["supertest"], // Explicitly externalize supertest for SSR
     },
+    resolve: {
+      alias: import.meta.env.PROD && {
+        "react-dom/server": "react-dom/server.edge",
+      },
+    },
   },
 });
