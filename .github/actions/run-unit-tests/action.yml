@@ -1,0 +1,9 @@
+name: "Run Unit Tests"
+description: "Runs unit tests with coverage"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Run Unit Tests with Coverage
+      run: npm run test:coverage
+      shell: bash
