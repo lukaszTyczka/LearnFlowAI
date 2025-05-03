@@ -214,7 +214,6 @@ export class OpenRouterService {
             typeof firstChoice.message.content === "string"
               ? JSON.parse(firstChoice.message.content)
               : firstChoice.message.content;
-
           cachedPayload = zodSchema.parse(content);
         } catch {
           cachedPayload = null;
@@ -267,7 +266,6 @@ export class OpenRouterService {
         throw new Error(`Received non-JSON, non-text response from OpenRouter. Status: ${response.status}`);
       }
     }
-
     if (!response.ok) {
       const errorMessage = `OpenRouter API Error: ${response.status} ${response.statusText}`;
       const errorDetails = responseBody?.error || responseBody;
@@ -283,7 +281,6 @@ export class OpenRouterService {
 
       throw new OpenRouterApiError(errorMessage, response.status, errorDetails);
     }
-
     return responseBody as T;
   }
 }

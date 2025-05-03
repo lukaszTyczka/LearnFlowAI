@@ -127,6 +127,7 @@ Format each question as a JSON object with:
 - options: object with A, B, C, D keys for each option
 - correct_option: the letter of the correct answer (A, B, C, or D)`;
 
+    //console.log("Note content.function:", note.content);
     try {
       // Request structured Q&A from OpenRouter
       const completion = await openRouter.createStructuredChatCompletion(
@@ -164,7 +165,7 @@ Format each question as a JSON object with:
 
       // Then insert questions linked to the QA set
       const { error: qaError } = await supabase.from("questions").insert(
-        (result as z.infer<typeof GeneratedQASchema>).map((qa: GeneratedQA) => ({
+        (result as z.infer<typeof GeneratedQASchema>).questions.map((qa: GeneratedQA) => ({
           qa_set_id: qaSet.id,
           question_text: qa.question,
           option_a: qa.options.A,
