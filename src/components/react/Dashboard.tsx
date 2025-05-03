@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useStore } from "@nanostores/react";
-import { $user } from "../../stores/authStore";
+import { $user, setUser, type AppUser } from "../../stores/authStore";
 import type { Tables } from "../../db/database.types";
 
 // Import custom hooks
@@ -20,11 +20,18 @@ type Category = Tables<"categories">;
 
 interface DashboardProps {
   initialCategories?: Category[];
+  initialUser: AppUser | null;
 }
 
-const DashboardReact: React.FC<DashboardProps> = ({ initialCategories = [] }) => {
-  const user = useStore($user);
+const DashboardReact: React.FC<DashboardProps> = ({ initialCategories = [], initialUser }) => {
+  const existingUser = useStore($user);
   const [hasMounted, setHasMounted] = useState(false);
+
+  useEffect(() => {
+    if (initialUser && !existingUser) {
+      setUser(initialUser);
+    }
+  }, [initialUser, existingUser]);
 
   // Use custom hooks to manage categories and notes
   const {
@@ -46,7 +53,7 @@ const DashboardReact: React.FC<DashboardProps> = ({ initialCategories = [] }) =>
     saveNote,
     deleteNote,
     generateQA,
-  } = useNotes(user);
+  } = useNotes(existingUser);
 
   // Load notes when category changes
   useEffect(() => {
@@ -95,6 +102,9 @@ const DashboardReact: React.FC<DashboardProps> = ({ initialCategories = [] }) =>
     await generateQA(noteId);
   };
 
+  // Handle user state from the store for UI logic
+  const currentUser = useStore($user);
+
   return (
     // Removed outer div and DashboardTopBar.
     // BaseLayout provides the header and flex context.
@@ -113,7 +123,7 @@ const DashboardReact: React.FC<DashboardProps> = ({ initialCategories = [] }) =>
           <DashboardNoteEditor
             noteContent={noteContent}
             isSaving={isSaving}
-            isUserLoggedIn={hasMounted && !!user}
+            isUserLoggedIn={hasMounted && !!currentUser}
             hasCategorySelected={!!selectedCategoryId}
             onContentChange={handleNoteContentChange}
             onSave={handleSaveNote}
@@ -133,7 +143,7 @@ const DashboardReact: React.FC<DashboardProps> = ({ initialCategories = [] }) =>
                 categories={categories}
                 selectedCategoryId={selectedCategoryId}
                 isLoading={isLoadingNotes}
-                isUserLoggedIn={hasMounted && !!user}
+                isUserLoggedIn={hasMounted && !!currentUser}
                 onNoteSelect={handleNoteSelect}
                 onNoteDelete={handleNoteDelete}
               />

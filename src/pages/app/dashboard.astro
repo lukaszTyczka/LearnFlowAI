@@ -1,8 +1,10 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import DashboardComponent from "../../components/react/Dashboard";
+
+const user = Astro.locals.user;
 ---
 
 <BaseLayout title="Dashboard - LearnFlowAI">
-  <DashboardComponent client:idle />
+  <DashboardComponent initialUser={user} client:idle />
 </BaseLayout>
