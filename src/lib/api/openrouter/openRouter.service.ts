@@ -105,7 +105,7 @@ export class OpenRouterService {
 
   constructor(
     config: {
-      apiKey?: string;
+      apiKey?: string | null;
       defaultModel?: string;
       baseURL?: string;
     } = {}
