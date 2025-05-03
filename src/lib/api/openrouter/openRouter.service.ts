@@ -112,7 +112,7 @@ export class OpenRouterService {
   ) {
     this.apiKey = config.apiKey || import.meta.env.OPENROUTER_API_KEY;
     if (!this.apiKey) {
-      throw new Error("OpenRouter API Key is not configured.");
+      throw new Error("OpenRouter API Key is not configured." + this.apiKey + import.meta.env.OPENROUTER_API_KEY);
     }
 
     this.defaultModel = config.defaultModel || "openai/gpt-4o-mini";

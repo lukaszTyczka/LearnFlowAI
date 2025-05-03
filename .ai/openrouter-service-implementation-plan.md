@@ -28,10 +28,8 @@ export class OpenRouterService {
     // 1. Wczytaj klucz API: Priorytet dla config.apiKey, fallback na zmienną środowiskową
     this.apiKey = config.apiKey || import.meta.env.OPENROUTER_API_KEY;
     if (!this.apiKey) {
-      console.error(
-        "OpenRouter API Key is missing. Please set OPENROUTER_API_KEY environment variable."
-      );
-      throw new Error("OpenRouter API Key is not configured.");
+      console.error("OpenRouter API Key is missing. Please set OPENROUTER_API_KEY environment variable.");
+      throw new Error("OpenRouter API Key is not configured." + this.apiKey + import.meta.env.OPENROUTER_API_KEY);
     }
 
     // 2. Ustaw domyślny model: Priorytet dla config.defaultModel, fallback na stałą lub inną zmienną
@@ -105,8 +103,7 @@ export interface ChatCompletionResponse {
 }
 
 // Potencjalny interfejs dla odpowiedzi ze schematem JSON
-export interface StructuredChatCompletionResponse<T>
-  extends Omit<ChatCompletionResponse, "choices"> {
+export interface StructuredChatCompletionResponse<T> extends Omit<ChatCompletionResponse, "choices"> {
   choices: Array<{
     index: number;
     message: {
@@ -136,9 +133,7 @@ export class OpenRouterService {
    * @param params Parametry żądania, w tym model, wiadomości i opcjonalne parametry LLM.
    * @returns Obietnica z odpowiedzią API OpenRouter.
    */
-  public async createChatCompletion(
-    params: ChatCompletionParams
-  ): Promise<ChatCompletionResponse> {
+  public async createChatCompletion(params: ChatCompletionParams): Promise<ChatCompletionResponse> {
     // Implementacja w sekcji "Plan wdrożenia krok po kroku"
     throw new Error("Not implemented");
   }
@@ -177,14 +172,21 @@ import { ZodError } from "zod"; // Potrzebne do obsługi błędów walidacji
 
 // Definicje niestandardowych błędów
 export class OpenRouterApiError extends Error {
-  constructor(message: string, public status?: number, public details?: any) {
+  constructor(
+    message: string,
+    public status?: number,
+    public details?: any
+  ) {
     super(message);
     this.name = "OpenRouterApiError";
   }
 }
 
 export class NetworkError extends Error {
-  constructor(message: string, public cause?: Error) {
+  constructor(
+    message: string,
+    public cause?: Error
+  ) {
     super(message);
     this.name = "NetworkError";
   }
@@ -215,10 +217,7 @@ export class OpenRouterService {
    * @param body Ciało żądania.
    * @returns Obietnica z odpowiedzią fetch API.
    */
-  private async _request(
-    endpoint: string,
-    body: Record<string, any>
-  ): Promise<Response> {
+  private async _request(endpoint: string, body: Record<string, any>): Promise<Response> {
     const url = `${this.baseURL}${endpoint}`;
     const headers = {
       Authorization: `Bearer ${this.apiKey}`,
@@ -237,14 +236,8 @@ export class OpenRouterService {
       return response;
     } catch (error: any) {
       // Błąd sieciowy (np. brak połączenia)
-      console.error(
-        `Network error calling OpenRouter API: ${error.message}`,
-        error
-      );
-      throw new NetworkError(
-        `Failed to connect to OpenRouter API: ${error.message}`,
-        error
-      );
+      console.error(`Network error calling OpenRouter API: ${error.message}`, error);
+      throw new NetworkError(`Failed to connect to OpenRouter API: ${error.message}`, error);
     }
   }
 
@@ -262,21 +255,15 @@ export class OpenRouterService {
       // Jeśli parsowanie JSON zawiedzie, spróbuj odczytać jako tekst
       try {
         const textBody = await response.text();
-        console.error(
-          `Failed to parse JSON response from OpenRouter. Status: ${response.status}. Body: ${textBody}`
-        );
+        console.error(`Failed to parse JSON response from OpenRouter. Status: ${response.status}. Body: ${textBody}`);
         throw new JsonParsingError(
           `Failed to parse JSON response. Status: ${response.status}`,
           textBody,
           e instanceof Error ? e : undefined
         );
       } catch (textError) {
-        console.error(
-          `Failed to parse JSON and text response from OpenRouter. Status: ${response.status}.`
-        );
-        throw new Error(
-          `Received non-JSON, non-text response from OpenRouter. Status: ${response.status}`
-        );
+        console.error(`Failed to parse JSON and text response from OpenRouter. Status: ${response.status}.`);
+        throw new Error(`Received non-JSON, non-text response from OpenRouter. Status: ${response.status}`);
       }
     }
 
@@ -307,25 +294,15 @@ export class OpenRouterService {
     );
 
     if (!toolCall?.function?.arguments) {
-      console.error(
-        "No matching tool call found in OpenRouter response for schema:",
-        schemaName,
-        response
-      );
-      throw new JsonParsingError(
-        "Structured JSON response is missing the expected tool call or arguments."
-      );
+      console.error("No matching tool call found in OpenRouter response for schema:", schemaName, response);
+      throw new JsonParsingError("Structured JSON response is missing the expected tool call or arguments.");
     }
 
     let parsedArgs: any;
     try {
       parsedArgs = JSON.parse(toolCall.function.arguments);
     } catch (e) {
-      console.error(
-        "Failed to parse JSON arguments from tool call:",
-        toolCall.function.arguments,
-        e
-      );
+      console.error("Failed to parse JSON arguments from tool call:", toolCall.function.arguments, e);
       throw new JsonParsingError(
         "Failed to parse JSON arguments from structured response.",
         toolCall.function.arguments,
@@ -339,10 +316,7 @@ export class OpenRouterService {
       return validatedData;
     } catch (error) {
       if (error instanceof ZodError) {
-        console.error(
-          "Zod validation failed for structured response:",
-          error.errors
-        );
+        console.error("Zod validation failed for structured response:", error.errors);
         throw new JsonParsingError(
           `Validation failed for structured response (schema: ${schemaName}): ${error.message}`,
           JSON.stringify(parsedArgs), // Dodajemy sparsowane, ale nieudane dane
