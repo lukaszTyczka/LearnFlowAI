@@ -26,10 +26,9 @@ export class OpenRouterService {
 
   constructor(config: OpenRouterServiceConfig = {}) {
     // 1. Wczytaj klucz API: Priorytet dla config.apiKey, fallback na zmienną środowiskową
-    this.apiKey = config.apiKey || import.meta.env.OPENROUTER_API_KEY;
     if (!this.apiKey) {
       console.error("OpenRouter API Key is missing. Please set OPENROUTER_API_KEY environment variable.");
-      throw new Error("OpenRouter API Key is not configured." + this.apiKey + import.meta.env.OPENROUTER_API_KEY);
+      throw new Error("OpenRouter API Key is not configured.");
     }
 
     // 2. Ustaw domyślny model: Priorytet dla config.defaultModel, fallback na stałą lub inną zmienną

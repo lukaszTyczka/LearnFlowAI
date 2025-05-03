@@ -1,0 +1,43 @@
+name: "Run E2E Tests"
+description: "Installs Playwright browsers, creates .env.test, and runs E2E tests"
+
+inputs:
+  public_supabase_url:
+    description: "Supabase Public URL"
+    required: true
+  public_supabase_key:
+    description: "Supabase Public Key"
+    required: true
+  openrouter_api_key:
+    description: "OpenRouter API Key"
+    required: true
+  e2e_username_id:
+    description: "E2E Test Username ID"
+    required: true
+  e2e_login:
+    description: "E2E Test Login"
+    required: true
+  e2e_password:
+    description: "E2E Test Password"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps
+      shell: bash
+
+    - name: Create .env.test file
+      run: |
+        echo "PUBLIC_SUPABASE_URL=${{ inputs.public_supabase_url }}" >> .env.test
+        echo "PUBLIC_SUPABASE_KEY=${{ inputs.public_supabase_key }}" >> .env.test
+        echo "OPENROUTER_API_KEY=${{ inputs.openrouter_api_key }}" >> .env.test
+        echo "E2E_USERNAME_ID=${{ inputs.e2e_username_id }}" >> .env.test
+        echo "E2E_LOGIN=${{ inputs.e2e_login }}" >> .env.test
+        echo "E2E_PASSWORD=${{ inputs.e2e_password }}" >> .env.test
+      shell: bash
+
+    - name: Run E2E Tests
+      run: npm run test:e2e
+      shell: bash
