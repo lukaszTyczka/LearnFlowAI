@@ -18,6 +18,7 @@ export default defineConfig({
     resolve: {
       alias: import.meta.env.PROD && {
         "react-dom/server": "react-dom/server.edge",
+        "/src/stores/authStore.ts": "/stores/authStore.ts",
       },
     },
   },
