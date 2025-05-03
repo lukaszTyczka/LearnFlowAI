@@ -104,8 +104,19 @@ export const POST: APIRoute = async ({ params, locals }) => {
       );
     }
 
-    // Initialize OpenRouter service
-    const openRouter = new OpenRouterService();
+    // Get the API key from Cloudflare environment variables
+    const openRouterApiKey = locals.runtime?.env?.OPENROUTER_API_KEY;
+
+    if (!openRouterApiKey) {
+      throw new SummarizeError(
+        "OpenRouter API Key is not configured on the server",
+        500,
+        "Server configuration error. Please contact support."
+      );
+    }
+
+    // Initialize OpenRouter service with the API key from locals
+    const openRouter = new OpenRouterService({ apiKey: openRouterApiKey });
 
     // Prepare the system message with instructions
     const systemMessage = `You are a professional summarizer. Create a concise summary of the provided text.
