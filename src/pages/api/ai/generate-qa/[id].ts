@@ -101,9 +101,9 @@ export const POST: APIRoute = async ({ params, locals }) => {
         "Failed to start Q&A generation process"
       );
     }
-
+    const openRouterApiKey = locals.runtime?.env?.OPENROUTER_API_KEY;
     // Initialize OpenRouter service
-    const openRouter = new OpenRouterService();
+    const openRouter = new OpenRouterService({ apiKey: openRouterApiKey });
 
     // Prepare the system message with instructions
     const systemMessage = `You are a professional educator and question generator.
