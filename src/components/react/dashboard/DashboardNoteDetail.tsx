@@ -82,15 +82,14 @@ const SummarySection: React.FC<{ note: Note }> = ({ note }) => {
 };
 
 const QASection: React.FC<{ note: Note; onGenerateQA: (noteId: string) => void }> = ({ note, onGenerateQA }) => {
-  const [mode, setMode] = useState<QAMode>("study"); // Default to review mode
+  const [mode, setMode] = useState<QAMode>("study");
   const [userAnswers, setUserAnswers] = useState<UserAnswers>({});
-  const [showResults, setShowResults] = useState<boolean>(false); // For study mode results
+  const [showResults, setShowResults] = useState<boolean>(false);
 
   const handleGenerateQA = () => {
-    // Reset state when generating new questions
     setUserAnswers({});
     setShowResults(false);
-    setMode("review"); // Default to review after generation
+    setMode("review");
     onGenerateQA(note.id);
   };
 
@@ -237,7 +236,6 @@ const QASection: React.FC<{ note: Note; onGenerateQA: (noteId: string) => void }
                     </div>
                   </div>
                 ))}
-                {/* Removed Check Answers/Try Again button container */}
               </>
             )}
           </div>
