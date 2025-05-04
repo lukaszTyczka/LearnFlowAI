@@ -135,11 +135,12 @@ Focus on the main points and key information.`;
         throw new Error("AI model returned invalid response format");
       }
 
-      // Update the note with the summary and status
+      // Update the note with the summary, key points, and status
       const { error: updateError } = await supabase
         .from("notes")
         .update({
           summary: result.summary,
+          key_points: result.keyPoints,
           summary_status: "completed" as const,
           summary_error_message: null,
           updated_at: new Date().toISOString(),
