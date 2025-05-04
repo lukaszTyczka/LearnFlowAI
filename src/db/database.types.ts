@@ -50,6 +50,7 @@ export interface Database {
           content: string;
           created_at: string;
           id: string;
+          key_points: string[] | null;
           qa_error_message: string | null;
           qa_status: string;
           summary: string | null;
@@ -63,6 +64,7 @@ export interface Database {
           content: string;
           created_at?: string;
           id?: string;
+          key_points?: string[] | null;
           qa_error_message?: string | null;
           qa_status?: string;
           summary?: string | null;
@@ -76,6 +78,7 @@ export interface Database {
           content?: string;
           created_at?: string;
           id?: string;
+          key_points?: string[] | null;
           qa_error_message?: string | null;
           qa_status?: string;
           summary?: string | null;
