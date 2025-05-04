@@ -1,10 +1,7 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback } from "react";
 import { toast } from "sonner";
-import type { Database } from "../../db/database.types";
 import type { Tables } from "../../db/database.types";
 import type { AppUser } from "../../stores/authStore";
-import { supabaseClient } from "../../db/supabase.client";
-import type { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
 
 // Export the Note type
 export type Note = Tables<"notes"> & {
@@ -39,63 +36,6 @@ export function useNotes(user: AppUser | null) {
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [noteContent, setNoteContent] = useState("");
   const [isSaving, setIsSaving] = useState(false);
-
-  // Setup realtime subscription for notes updates
-  useEffect(() => {
-    if (!user) return;
-
-    let subscription: ReturnType<typeof supabaseClient.channel> | null = null;
-
-    try {
-      subscription = supabaseClient
-        .channel("notes_changes")
-        .on(
-          "postgres_changes",
-          {
-            event: "UPDATE",
-            schema: "public",
-            table: "notes",
-            filter: `user_id=eq.${user.id}`,
-          },
-          (
-            payload: RealtimePostgresChangesPayload<
-              Database["public"]["Tables"]["notes"]["Row"] & {
-                summary_status: Note["summary_status"];
-                summary_error_message?: string | null;
-                qa_status: Note["qa_status"];
-                qa_error_message?: string | null;
-              }
-            >
-          ) => {
-            const updatedNote = payload.new as Note;
-            setNotes((currentNotes) => currentNotes.map((note) => (note.id === updatedNote.id ? updatedNote : note)));
-
-            // Show appropriate toast based on summary status
-            if (updatedNote.summary_status === "completed") {
-              toast.success("Note summary generated successfully");
-            } else if (updatedNote.summary_status === "failed") {
-              toast.error(`Summary generation failed: ${updatedNote.summary_error_message || "Unknown error"}`);
-            }
-
-            // Show appropriate toast based on Q&A status
-            if (updatedNote.qa_status === "completed") {
-              toast.success("Q&A set generated successfully");
-            } else if (updatedNote.qa_status === "failed") {
-              toast.error(`Q&A generation failed: ${updatedNote.qa_error_message || "Unknown error"}`);
-            }
-          }
-        )
-        .subscribe();
-    } catch {
-      // Do nothing
-    }
-
-    return () => {
-      if (subscription) {
-        subscription.unsubscribe();
-      }
-    };
-  }, [user]);
 
   const loadNotes = useCallback(
     async (categoryId: string | null) => {
