@@ -14,6 +14,7 @@ export type Note = Tables<"notes"> & {
   qa_error_message?: string | null;
   content?: string | null;
   summary?: string | null;
+  key_points?: string[] | null;
   qa_sets?:
     | [
         {

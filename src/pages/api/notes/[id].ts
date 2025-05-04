@@ -28,7 +28,7 @@ export const GET: APIRoute = async ({ params, locals }) => {
       .from("notes")
       .select(
         `
-        id, content, summary, created_at, updated_at, user_id, qa_status, qa_error_message, summary_status, summary_error_message,
+        id, content, summary, key_points, created_at, updated_at, user_id, qa_status, qa_error_message, summary_status, summary_error_message,
         category:categories(id, name),
         qa_sets(
           id, created_at,

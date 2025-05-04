@@ -59,7 +59,19 @@ const SummarySection: React.FC<{ note: Note }> = ({ note }) => {
           </div>
         )}
         {note.summary_status === "completed" && note.summary && (
-          <p className="whitespace-pre-wrap text-sm">{note.summary}</p>
+          <div className="space-y-3">
+            <p className="whitespace-pre-wrap text-sm">{note.summary}</p>
+            {note.key_points && note.key_points.length > 0 && (
+              <div>
+                <h4 className="text-sm font-medium text-muted-foreground mb-1">Key Points:</h4>
+                <ul className="list-disc list-inside text-sm space-y-1 pl-2">
+                  {note.key_points.map((point, index) => (
+                    <li key={index}>{point}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
         )}
         {note.summary_status === "completed" && !note.summary && (
           <p className="text-sm text-muted-foreground">Summary generated but content is empty.</p>
