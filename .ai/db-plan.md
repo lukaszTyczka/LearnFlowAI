@@ -27,6 +27,8 @@ Poniższy schemat bazy danych został zaprojektowany w oparciu o dokument wymaga
   - Oryginalna treść notatki; ograniczenie długości (np. CHECK (char_length(content) BETWEEN 300 AND 10000)).
 - **summary**: TEXT
   - Wygenerowane podsumowanie notatki.
+- **key_points**: TEXT[]
+  - Tablica kluczowych punktów wygenerowanych podczas podsumowania.
 - **created_at**: TIMESTAMP WITH TIME ZONE, NOT NULL, DEFAULT now()
 - **updated_at**: TIMESTAMP WITH TIME ZONE, NOT NULL, DEFAULT now()
 
