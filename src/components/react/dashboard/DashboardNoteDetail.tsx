@@ -134,7 +134,7 @@ const QASection: React.FC<{ note: Note; onGenerateQA: (noteId: string) => void }
           {(note.qa_status === "idle" || note.qa_status === "failed") && (
             <Button variant="ghost" size="sm" onClick={handleGenerateQA} className="h-8 px-2">
               <Brain className="h-4 w-4 mr-2" />
-              {note.qa_status === "failed" ? "Retry" : "Generate Q&A"}
+              {note.qa_status === "failed" ? "Retry Q&A" : "Generate Q&A"}
             </Button>
           )}
         </div>

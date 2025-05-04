@@ -179,6 +179,15 @@ export function useNotes(user: AppUser | null) {
           toast.warning("Note saved, but failed to start summary generation. You can retry later.");
         }
 
+        const generateQA = await fetch(`/api/ai/generate-qa/${note.id}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        });
+
+        if (!generateQA.ok) {
+          toast.warning("Note saved, but failed to start Q&A generation. You can retry later.");
+        }
+
         return true;
       } catch (err: unknown) {
         // Explicitly type error
